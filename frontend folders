@@ -1,0 +1,14 @@
+client/
+├── public/
+└── src/
+    ├── assets/
+    ├── components/
+    ├── pages/
+    ├── layouts/
+    ├── services/
+    ├── context/
+    ├── hooks/
+    ├── utils/
+    ├── styles/
+    ├── routes/
+    └── constants/
