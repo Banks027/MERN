@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import "../styles/Register.css";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -28,14 +30,17 @@ function Register() {
 
     console.log("Registration information:", formData);
 
-    // Your teammate will connect the registration API here later.
+    // Your teammate will connect the register API here.
   }
 
   return (
-    <main className="auth-page">
-      <section className="auth-card">
-        <h1>Create Your Account</h1>
-        <p>Join KnightMarket and start buying and selling with UCF students.</p>
+    <main className="register-page">
+      <section className="register-card">
+        <h1>Register</h1>
+
+        <p>
+          Create your KnightMarket account and join the UCF student community.
+        </p>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
@@ -44,6 +49,7 @@ function Register() {
               id="firstName"
               type="text"
               name="firstName"
+              placeholder="Enter your first name"
               value={formData.firstName}
               onChange={handleChange}
               required
@@ -56,6 +62,7 @@ function Register() {
               id="lastName"
               type="text"
               name="lastName"
+              placeholder="Enter your last name"
               value={formData.lastName}
               onChange={handleChange}
               required
@@ -81,6 +88,7 @@ function Register() {
               id="password"
               type="password"
               name="password"
+              placeholder="Create a password"
               value={formData.password}
               onChange={handleChange}
               required
@@ -93,13 +101,14 @@ function Register() {
               id="confirmPassword"
               type="password"
               name="confirmPassword"
+              placeholder="Enter your password again"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
             />
           </div>
 
-          <button type="submit">Create Account</button>
+          <button type="submit">Register</button>
         </form>
 
         <button type="button" className="google-button">
@@ -107,7 +116,7 @@ function Register() {
         </button>
 
         <p>
-          Already have an account? <a href="/login">Log in</a>
+          Already have an account? <Link to="/login">Sign In</Link>
         </p>
       </section>
     </main>
