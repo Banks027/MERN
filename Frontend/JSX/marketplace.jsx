@@ -1,287 +1,193 @@
-import React from "react";
+import { useState } from "react";
+
 import "../CSS/marketplace.css";
 
-function Marketplace() {
-  const listings = [
-    {
-      id: 1,
-      title: "MacBook Air M2",
-      price: "$800",
-      category: "Electronics",
-      condition: "Like New",
-      location: "Orlando, FL",
-      image:
-        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 2,
-      title: "Calculus Textbook",
-      price: "$45",
-      category: "Books",
-      condition: "Good",
-      location: "UCF Library",
-      image:
-        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 3,
-      title: "Gaming Monitor",
-      price: "$150",
-      category: "Electronics",
-      condition: "Excellent",
-      location: "Knights Circle",
-      image:
-        "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 4,
-      title: "Desk Chair",
-      price: "$40",
-      category: "Furniture",
-      condition: "Used",
-      location: "Orlando, FL",
-      image:
-        "https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 5,
-      title: "Mini Fridge",
-      price: "$75",
-      category: "Dorm",
-      condition: "Good",
-      location: "NorthView",
-      image:
-        "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      id: 6,
-      title: "TI-84 Calculator",
-      price: "$60",
-      category: "School",
-      condition: "Like New",
-      location: "Engineering Building",
-      image:
-        "https://images.unsplash.com/photo-1565514020179-026b92b84bb6?auto=format&fit=crop&w=800&q=80",
-    },
-  ];
+import Navbar from "../components/navbar";
+import Footer from "../components/Footer";
+import SearchBar from "../components/SearchBar";
+import CategorySection from "../components/CategorySection";
+import ListingCard from "../components/ListingCard";
+
+const listings = [
+  {
+    id: 1,
+    title: "MacBook Air M2",
+    price: 800,
+    condition: "Like New",
+    location: "Student Union",
+    date: "2 hours ago",
+    image: "https://placehold.co/600x400?text=MacBook",
+    category: "Electronics",
+  },
+  {
+    id: 2,
+    title: "TI-84 Plus CE",
+    price: 70,
+    condition: "Excellent",
+    location: "John C. Hitt Library",
+    date: "Today",
+    image: "https://placehold.co/600x400?text=Calculator",
+    category: "Textbooks",
+  },
+  {
+    id: 3,
+    title: "Mini Fridge",
+    price: 60,
+    condition: "Good",
+    location: "Towers",
+    date: "Yesterday",
+    image: "https://placehold.co/600x400?text=Mini+Fridge",
+    category: "Furniture",
+  },
+  {
+    id: 4,
+    title: "Nintendo Switch OLED",
+    price: 240,
+    condition: "Like New",
+    location: "NorthView",
+    date: "1 day ago",
+    image: "https://placehold.co/600x400?text=Switch",
+    category: "Electronics",
+  },
+  {
+    id: 5,
+    title: "Dell Monitor",
+    price: 110,
+    condition: "Excellent",
+    location: "Garage C",
+    date: "Today",
+    image: "https://placehold.co/600x400?text=Monitor",
+    category: "Electronics",
+  },
+  {
+    id: 6,
+    title: "UCF Nike Hoodie",
+    price: 25,
+    condition: "Good",
+    location: "Memory Mall",
+    date: "3 days ago",
+    image: "https://placehold.co/600x400?text=Hoodie",
+    category: "Clothing",
+  },
+];
+
+export default function Marketplace() {
+
+  const [search, setSearch] = useState("");
+
+  const scrollToSection = (id) => {
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
+  const openListing = (listing) => {
+    alert(`Open listing:\n${listing.title}`);
+  };
+
+  const requireSignIn = () => {
+    alert("Please sign in to save items.");
+  };
+
+  const filteredListings = listings.filter((listing) =>
+    listing.title.toLowerCase().includes(search.toLowerCase()) ||
+    listing.category.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="marketplace-page">
 
-      {/* ---------- Navbar ---------- */}
+      <Navbar scrollToSection={scrollToSection} />
 
-      <header className="navbar">
+      {/* Hero */}
 
-        <a className="brand" href="/">
-          <span className="brand-knight">♞</span>
-          <span>Knight</span>
-          <strong>Market</strong>
-        </a>
-
-        <nav className="nav-links">
-          <a href="/">Home</a>
-          <a href="/marketplace">Browse Listings</a>
-          <a href="/saved">Saved</a>
-          <a href="/notifications">Notifications</a>
-          <a href="/about">About</a>
-        </nav>
-
-        <div className="nav-actions">
-
-          <button
-            className="notification-button"
-            aria-label="Notifications"
-          >
-            🔔
-          </button>
-
-          <button
-            className="profile-button"
-            aria-label="Profile"
-          >
-            👤
-          </button>
-
-          <button className="post-item-button">
-            Post Item
-          </button>
-
-        </div>
-
-      </header>
-
-      {/* ---------- Hero ---------- */}
-
-      <section className="marketplace-hero">
+      <section className="marketplace-header">
 
         <h1>Browse Listings</h1>
 
         <p>
           Discover textbooks, electronics, furniture,
-          and more from fellow UCF students.
+          clothing, and more from fellow Knights.
         </p>
 
-        <div className="search-container">
-
-          <input
-            type="text"
-            placeholder="Search for anything..."
-          />
-
-          <button>
-            Search
-          </button>
-
-        </div>
+        <SearchBar
+          search={search}
+          setSearch={setSearch}
+          scrollToSection={scrollToSection}
+        />
 
       </section>
 
-      {/* ---------- Content ---------- */}
+      <CategorySection
+        setSearch={setSearch}
+        scrollToSection={scrollToSection}
+      />
 
-      <main className="marketplace-content">
+      {/* Listings */}
 
-        {/* Sidebar */}
+      <section
+        className="market-section"
+        id="listings"
+      >
 
-        <aside className="filter-sidebar">
+        <div className="market-sidebar">
 
           <h2>Filters</h2>
 
           <div className="filter-group">
 
-            <label>Category</label>
+            <h3>Condition</h3>
 
-            <select>
+            <label>
+              <input type="checkbox" />
+              New
+            </label>
 
-              <option>All Categories</option>
+            <label>
+              <input type="checkbox" />
+              Like New
+            </label>
 
-              <option>Electronics</option>
+            <label>
+              <input type="checkbox" />
+              Good
+            </label>
 
-              <option>Books</option>
-
-              <option>Furniture</option>
-
-              <option>Dorm</option>
-
-            </select>
-
-          </div>
-
-          <div className="filter-group">
-
-            <label>Condition</label>
-
-            <select>
-
-              <option>Any</option>
-
-              <option>New</option>
-
-              <option>Like New</option>
-
-              <option>Used</option>
-
-            </select>
+            <label>
+              <input type="checkbox" />
+              Used
+            </label>
 
           </div>
 
-          <div className="filter-group">
-
-            <label>Maximum Price</label>
-
-            <input
-              type="number"
-              placeholder="$500"
-            />
-
-          </div>
-
-          <button className="gold-button">
-            Apply Filters
+          <button className="reset-btn">
+            Reset Filters
           </button>
 
-        </aside>
+        </div>
 
-        {/* Products */}
+        <div className="listing-grid">
 
-        <section className="listing-grid">
+          {filteredListings.map((listing) => (
 
-          {listings.map((listing) => (
-
-            <article
-              className="listing-card"
+            <ListingCard
               key={listing.id}
-            >
-
-              <div className="listing-image-wrapper">
-
-                <img
-                  src={listing.image}
-                  alt={listing.title}
-                />
-
-                <button className="heart-button">
-
-                  ♡
-
-                </button>
-
-              </div>
-
-              <div className="listing-details">
-
-                <span className="listing-category">
-
-                  {listing.category}
-
-                </span>
-
-                <h3>
-
-                  {listing.title}
-
-                </h3>
-
-                <strong>
-
-                  {listing.price}
-
-                </strong>
-
-                <p>
-
-                  {listing.condition}
-
-                </p>
-
-                <small>
-
-                  📍 {listing.location}
-
-                </small>
-
-                <button className="view-button">
-
-                  View Listing
-
-                </button>
-
-              </div>
-
-            </article>
+              listing={listing}
+              openListing={openListing}
+              requireSignIn={requireSignIn}
+            />
 
           ))}
 
-        </section>
+        </div>
 
-      </main>
+      </section>
 
-      {/* Pagination */}
-
-      <section className="pagination">
+      <div className="pagination">
 
         <button>Previous</button>
 
-        <button className="active-page">
+        <button className="current">
           1
         </button>
 
@@ -291,10 +197,10 @@ function Marketplace() {
 
         <button>Next</button>
 
-      </section>
+      </div>
+
+      <Footer scrollToSection={scrollToSection} />
 
     </div>
   );
 }
-
-export default Marketplace;
