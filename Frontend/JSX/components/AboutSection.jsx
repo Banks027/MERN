@@ -1,6 +1,5 @@
 import React from "react";
 
-
 function AboutSection() {
   return (
     <section className="about-section" id="about">
@@ -30,9 +29,12 @@ function AboutSection() {
           <li>Convenient campus exchanges</li>
         </ul>
 
-        <Link to="/about" className="primary-button">
+        <button
+          className="primary-button"
+          type="button"
+        >
           Learn More About Us
-        </Link>
+        </button>
       </div>
     </section>
   );
