@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function AboutSection() {
   return (
@@ -29,12 +30,9 @@ function AboutSection() {
           <li>Convenient campus exchanges</li>
         </ul>
 
-        <button
-          className="primary-button"
-          type="button"
-        >
+        <Link to="/about" className="primary-button">
           Learn More About Us
-        </button>
+        </Link>
       </div>
     </section>
   );
