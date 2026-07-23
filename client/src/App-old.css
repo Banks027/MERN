@@ -1,0 +1,296 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #fffaf0;
+  color: #111111;
+}
+
+button {
+  cursor: pointer;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 6%;
+  background-color: white;
+  border-bottom: 1px solid #dddddd;
+}
+
+.logo {
+  font-size: 27px;
+}
+
+.logo span {
+  color: #c99a00;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #111111;
+  font-weight: bold;
+}
+
+.nav-links a:hover {
+  color: #c99a00;
+}
+
+.post-button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 7px;
+  background-color: #111111;
+  color: white;
+  font-weight: bold;
+}
+
+.hero {
+  min-height: 620px;
+  display: flex;
+  align-items: center;
+  padding: 70px 8%;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.82),
+      rgba(0, 0, 0, 0.3)
+    ),
+    url("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1600&q=80");
+  background-size: cover;
+  background-position: center;
+}
+
+.hero-content {
+  max-width: 700px;
+  color: white;
+}
+
+.small-title {
+  margin-bottom: 15px;
+  color: #f2c230;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.hero h2 {
+  margin-bottom: 20px;
+  font-size: 65px;
+  line-height: 1.1;
+}
+
+.hero h2 span {
+  color: #f2c230;
+}
+
+.hero-text {
+  margin-bottom: 30px;
+  max-width: 600px;
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.browse-button,
+.sell-button {
+  padding: 14px 22px;
+  border-radius: 7px;
+  font-weight: bold;
+}
+
+.browse-button {
+  border: none;
+  background-color: #f2c230;
+  color: #111111;
+}
+
+.sell-button {
+  border: 1px solid white;
+  background-color: transparent;
+  color: white;
+}
+
+.categories,
+.marketplace,
+.about {
+  padding: 80px 7%;
+  text-align: center;
+}
+
+.categories h2,
+.marketplace h2,
+.about h2 {
+  margin-bottom: 10px;
+  font-size: 38px;
+}
+
+.categories > p,
+.marketplace > p {
+  margin-bottom: 40px;
+  color: #666666;
+}
+
+.category-container {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+}
+
+.category-card {
+  padding: 30px 15px;
+  border: 1px solid #dddddd;
+  border-radius: 12px;
+  background-color: white;
+}
+
+.category-card span {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 38px;
+}
+
+.marketplace {
+  background-color: #f4eddd;
+}
+
+.listing-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.listing-card {
+  overflow: hidden;
+  border-radius: 12px;
+  background-color: white;
+  text-align: left;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.listing-image {
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ddd5c5;
+  color: #666666;
+}
+
+.listing-info {
+  padding: 18px;
+}
+
+.listing-info h3 {
+  margin-bottom: 8px;
+}
+
+.listing-info h4 {
+  margin-bottom: 10px;
+  color: #b18200;
+  font-size: 21px;
+}
+
+.listing-info p {
+  margin-top: 6px;
+  color: #666666;
+}
+
+.about-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-top: 40px;
+}
+
+.about-card {
+  padding: 35px;
+  border-radius: 12px;
+  background-color: #111111;
+  color: white;
+}
+
+.about-card span {
+  display: block;
+  margin-bottom: 15px;
+  font-size: 35px;
+}
+
+.about-card h3 {
+  margin-bottom: 12px;
+  color: #f2c230;
+}
+
+.about-card p {
+  line-height: 1.6;
+  color: #dddddd;
+}
+
+.footer {
+  padding: 45px 7%;
+  background-color: #111111;
+  color: white;
+  text-align: center;
+}
+
+.footer h2 {
+  margin-bottom: 10px;
+  color: #f2c230;
+}
+
+.footer p {
+  margin-top: 8px;
+  color: #cccccc;
+}
+
+@media (max-width: 1000px) {
+  .nav-links {
+    display: none;
+  }
+
+  .category-container {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .listing-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .hero h2 {
+    font-size: 43px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .category-container,
+  .listing-container,
+  .about-container {
+    grid-template-columns: 1fr;
+  }
+
+  .post-button {
+    padding: 9px 12px;
+  }
+}

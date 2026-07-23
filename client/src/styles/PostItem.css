@@ -1,0 +1,652 @@
+/* =========================================
+   POST ITEM PAGE
+========================================= */
+
+.post-item-page {
+  min-height: 100vh;
+  background: #f8f6f1;
+  color: #111111;
+  font-family: "Poppins", Arial, sans-serif;
+}
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.post-item-navbar {
+  width: 100%;
+  background: #111111;
+  border-bottom: 1px solid rgba(201, 151, 0, 0.35);
+}
+
+.post-item-navbar-inner {
+  width: min(1180px, calc(100% - 40px));
+  min-height: 72px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.post-item-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.post-item-brand-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #c99700;
+  color: #111111;
+  font-size: 22px;
+}
+
+.post-item-back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 1px solid #c99700;
+  border-radius: 10px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.post-item-back-link:hover {
+  background: #c99700;
+  color: #111111;
+}
+
+/* =========================================
+   PAGE CONTAINER
+========================================= */
+
+.post-item-container {
+  width: min(850px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 48px 0 70px;
+}
+
+/* =========================================
+   TWO-STEP INDICATOR
+========================================= */
+
+.post-item-step-indicator {
+  max-width: 650px;
+  margin: 0 auto 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-item-step {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #888888;
+}
+
+.post-item-step > span {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #d8d1c4;
+  border-radius: 50%;
+  background: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.post-item-step strong,
+.post-item-step small {
+  display: block;
+}
+
+.post-item-step strong {
+  color: #555555;
+  font-size: 14px;
+}
+
+.post-item-step small {
+  margin-top: 3px;
+  color: #888888;
+  font-size: 11px;
+}
+
+.post-item-step.active > span,
+.post-item-step.completed > span {
+  border-color: #c99700;
+  background: #c99700;
+  color: #111111;
+}
+
+.post-item-step.active strong,
+.post-item-step.completed strong {
+  color: #111111;
+}
+
+.post-item-step-line {
+  width: 110px;
+  height: 2px;
+  margin: 0 18px;
+  background: #ded8ce;
+}
+
+.post-item-step-line.active {
+  background: #c99700;
+}
+
+/* =========================================
+   PAGE HEADING
+========================================= */
+
+.post-item-heading {
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+.post-item-heading > p:first-child {
+  margin: 0 0 7px;
+  color: #9b7400;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.post-item-heading h1 {
+  margin: 0;
+  color: #111111;
+  font-size: clamp(30px, 5vw, 44px);
+  line-height: 1.15;
+}
+
+.post-item-heading > p:last-child {
+  max-width: 650px;
+  margin: 12px auto 0;
+  color: #666666;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   FORM CARD
+========================================= */
+
+.post-item-form {
+  overflow: hidden;
+  border: 1px solid #e6dfd3;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 14px 40px rgba(17, 17, 17, 0.08);
+}
+
+.post-item-form-header {
+  padding: 25px 30px;
+  border-bottom: 1px solid #eee7da;
+  background: #fffaf0;
+}
+
+.post-item-form-header h2 {
+  margin: 0;
+  color: #111111;
+  font-size: 23px;
+}
+
+.post-item-form-header p {
+  margin: 6px 0 0;
+  color: #6b6b6b;
+  font-size: 13px;
+}
+
+.post-item-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 23px;
+  padding: 30px;
+}
+
+/* =========================================
+   FORM FIELDS
+========================================= */
+
+.post-item-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.post-item-full-width {
+  grid-column: 1 / -1;
+}
+
+.post-item-field label {
+  color: #222222;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.post-item-field input,
+.post-item-field select,
+.post-item-field textarea {
+  width: 100%;
+  border: 1px solid #d8d1c4;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111111;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.post-item-field input,
+.post-item-field select {
+  min-height: 48px;
+  padding: 0 14px;
+}
+
+.post-item-field textarea {
+  min-height: 145px;
+  padding: 14px;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.post-item-field input:focus,
+.post-item-field select:focus,
+.post-item-field textarea:focus {
+  border-color: #c99700;
+  box-shadow: 0 0 0 3px rgba(201, 151, 0, 0.13);
+}
+
+.post-item-field input::placeholder,
+.post-item-field textarea::placeholder {
+  color: #a1a1a1;
+}
+
+.post-item-field small {
+  color: #777777;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =========================================
+   PRICE INPUT
+========================================= */
+
+.post-item-price-input {
+  position: relative;
+}
+
+.post-item-price-input span {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  z-index: 1;
+  transform: translateY(-50%);
+  color: #555555;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.post-item-price-input input {
+  padding-left: 32px;
+}
+
+/* =========================================
+   ZIP CODE
+========================================= */
+
+.post-item-zipcode-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.post-item-verify-button {
+  min-height: 48px;
+  padding: 0 20px;
+  border: 1px solid #c99700;
+  border-radius: 10px;
+  background: #fff8df;
+  color: #111111;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.post-item-verify-button:hover {
+  background: #c99700;
+  transform: translateY(-1px);
+}
+
+.post-item-verify-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
+/* =========================================
+   STATUS MESSAGES
+========================================= */
+
+.post-item-success-message,
+.post-item-error-message {
+  margin: 2px 0 0;
+  padding: 11px 13px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.post-item-success-message {
+  border: 1px solid #b9dfc2;
+  background: #eefaf1;
+  color: #246b35;
+}
+
+.post-item-error-message {
+  border: 1px solid #efc0c0;
+  background: #fff1f1;
+  color: #a02a2a;
+}
+
+/* =========================================
+   FORM ACTIONS
+========================================= */
+
+.post-item-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 13px;
+  padding: 22px 30px 28px;
+  border-top: 1px solid #eee7da;
+  background: #fffdfa;
+}
+
+.post-item-cancel-button,
+.post-item-submit-button {
+  min-height: 47px;
+  padding: 0 23px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.post-item-cancel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #cfc7ba;
+  background: #ffffff;
+  color: #333333;
+}
+
+.post-item-cancel-button:hover {
+  border-color: #111111;
+}
+
+.post-item-submit-button {
+  border: 1px solid #c99700;
+  background: #c99700;
+  color: #111111;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.post-item-submit-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   STEP 2 PREFERENCES
+========================================= */
+
+.post-preferences-content {
+  padding: 34px;
+}
+
+.post-preference-section {
+  padding: 0 0 34px;
+  margin-bottom: 34px;
+  border-bottom: 1px solid #eee7da;
+}
+
+.post-preference-section:last-of-type {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+.post-preference-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.post-preference-icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #fff0bc;
+  color: #111111;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.post-preference-heading h3 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.post-preference-heading p {
+  margin: 6px 0 0;
+  color: #6f6f6f;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.post-option-grid {
+  display: grid;
+  gap: 13px;
+}
+
+.payment-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.meetup-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.post-option-card {
+  position: relative;
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid #ded8ce;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #222222;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.post-option-card:hover {
+  border-color: #c99700;
+  transform: translateY(-1px);
+}
+
+.post-option-card.selected {
+  border-color: #c99700;
+  background: #fff8df;
+}
+
+.post-option-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.post-option-checkbox {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #c7c0b5;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #111111;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.post-option-card.selected .post-option-checkbox {
+  border-color: #c99700;
+  background: #c99700;
+}
+
+.post-preferences-error {
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #efc0c0;
+  border-radius: 10px;
+  background: #fff0f0;
+  color: #a02a2a;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 750px) {
+  .post-item-navbar-inner {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .post-item-brand {
+    font-size: 16px;
+  }
+
+  .post-item-container {
+    width: min(100% - 28px, 850px);
+    padding-top: 32px;
+  }
+
+  .post-item-step-indicator {
+    margin-bottom: 28px;
+  }
+
+  .post-item-step-line {
+    width: 45px;
+    margin: 0 9px;
+  }
+
+  .post-item-step div {
+    display: none;
+  }
+
+  .post-item-form-grid {
+    grid-template-columns: 1fr;
+    padding: 23px;
+  }
+
+  .post-item-full-width {
+    grid-column: auto;
+  }
+
+  .post-item-form-header {
+    padding: 22px 23px;
+  }
+
+  .post-item-form-actions {
+    padding: 20px 23px 24px;
+  }
+
+  .payment-grid,
+  .meetup-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .post-preferences-content {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 520px) {
+  .post-item-navbar-inner {
+    min-height: 65px;
+  }
+
+  .post-item-brand-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 19px;
+  }
+
+  .post-item-back-link {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .post-item-zipcode-row {
+    grid-template-columns: 1fr;
+  }
+
+  .post-item-verify-button {
+    width: 100%;
+  }
+
+  .post-item-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .post-item-cancel-button,
+  .post-item-submit-button {
+    width: 100%;
+  }
+}

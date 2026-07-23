@@ -24,12 +24,6 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-var server = http.createServer(app);
-
 connectDatabase()
   .then(function () {
     server.listen(port);
@@ -40,6 +34,14 @@ connectDatabase()
     console.error("MongoDB connection failed:", error);
     process.exit(1);
   });
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port);
+server.on('error', onError);
+server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
