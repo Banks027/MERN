@@ -1,0 +1,39 @@
+# NOTE:  Due to issues I had with github, this is not fully correct.
+# It's not required for the assignment, but it's a good starting point
+# if you wish to earn extra credit by implementing CI for the front-end
+
+name: Frontend CI (Test and Build)
+
+on:
+  # Uncomment these if you wish to integrate CI into your front-end.
+  # push:
+  # pull_request:
+  workflow_dispatch: {}
+
+jobs:
+  test-and-build:
+    name: Test and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run CI Tests
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run dev
+          wait-on: 'http://localhost:8888'
+          command: npm run cy:run
+
+      - name: Build Application
+        run: npm run build
