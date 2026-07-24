@@ -1,0 +1,116 @@
+.error-page {
+
+    min-height: calc(100vh - 78px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 80px 20px;
+
+    background: var(--cream);
+}
+
+.error-card {
+
+    max-width: 700px;
+    width: 100%;
+
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 60px;
+
+    text-align: center;
+
+    box-shadow: var(--shadow);
+}
+
+.error-icon{
+
+    width:90px;
+    height:90px;
+
+    margin:0 auto 25px;
+
+    border-radius:50%;
+
+    background:var(--gold);
+
+    color:var(--black);
+
+    font-size:42px;
+    font-weight:bold;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.error-card h1{
+
+    font-size:90px;
+
+    color:var(--dark-gold);
+
+    line-height:1;
+}
+
+.error-card h2{
+
+    margin:18px 0;
+
+    font-size:34px;
+}
+
+.error-card p{
+
+    color:var(--gray);
+
+    line-height:1.8;
+
+    max-width:500px;
+
+    margin:0 auto 35px;
+}
+
+.error-buttons{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+}
+
+@media(max-width:768px){
+
+    .error-card{
+
+        padding:40px 25px;
+    }
+
+    .error-card h1{
+
+        font-size:70px;
+    }
+
+    .error-card h2{
+
+        font-size:28px;
+    }
+
+    .error-buttons{
+
+        flex-direction:column;
+    }
+
+    .error-buttons a{
+
+        width:100%;
+    }
+
+}

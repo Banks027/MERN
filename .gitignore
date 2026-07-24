@@ -1,0 +1,52 @@
+# Linux home-directory files
+.bash_history
+.bash_logout
+.bashrc
+.profile
+.cloud-locale-test.skip
+.local/
+.npm/
+.pm2/
+.cache/
+.ssh/
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Generated frontend builds
+client/build/
+build/
+dist/
+
+# Logs and runtime files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.pid
+*.pid.lock
+
+# Test coverage
+coverage/
+**/coverage/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Backup and temporary files
+*.save
+*.bak
+*.backup
+*~
