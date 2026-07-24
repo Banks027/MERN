@@ -1,0 +1,491 @@
+/* ==========================================
+   MY LISTINGS PAGE
+========================================== */
+
+.my-listings-page {
+    min-height: 100vh;
+    background: #f6f7fb;
+    padding: 40px;
+}
+
+/* ==========================================
+   HERO
+========================================== */
+
+.my-listings-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+    background: linear-gradient(135deg, #000000, #2f2f2f);
+    color: white;
+    border-radius: 18px;
+    padding: 40px;
+    margin-bottom: 35px;
+}
+
+.hero-label {
+    color: #ffc904;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.my-listings-hero h1 {
+    margin: 0;
+    font-size: 2.3rem;
+}
+
+.my-listings-hero p {
+    margin-top: 12px;
+    color: #d5d5d5;
+    max-width: 600px;
+    line-height: 1.6;
+}
+
+.post-item-button {
+    background: #ffc904;
+    color: black;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 15px 28px;
+    border-radius: 10px;
+    transition: .25s;
+    white-space: nowrap;
+}
+
+.post-item-button:hover {
+    background: #ffdb55;
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   STATS
+========================================== */
+
+.listing-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 35px;
+}
+
+.listing-stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    text-align: center;
+}
+
+.listing-stat-card h2 {
+    color: #d4a514;
+    margin: 0;
+    font-size: 2.3rem;
+}
+
+.listing-stat-card p {
+    margin-top: 10px;
+    color: #666;
+    font-weight: 600;
+}
+
+/* ==========================================
+   SEARCH BAR
+========================================== */
+
+.listing-toolbar {
+    margin-bottom: 30px;
+}
+
+.listing-toolbar input {
+    width: 100%;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid #d9d9d9;
+    font-size: 1rem;
+    transition: .2s;
+}
+
+.listing-toolbar input:focus {
+    outline: none;
+    border-color: #ffc904;
+    box-shadow: 0 0 0 3px rgba(255,201,4,.25);
+}
+
+/* ==========================================
+   LISTING GRID
+========================================== */
+
+.my-listings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px,1fr));
+    gap: 28px;
+}
+
+/* ==========================================
+   CARD
+========================================== */
+
+.my-listing-card {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0,0,0,.08);
+    transition: .25s;
+}
+
+.my-listing-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 38px rgba(0,0,0,.15);
+}
+
+.my-listing-image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+.my-listing-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: .3s;
+}
+
+.my-listing-card:hover img {
+    transform: scale(1.05);
+}
+
+.listing-price {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #ffc904;
+    color: black;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 25px;
+}
+
+.my-listing-content {
+    padding: 22px;
+}
+
+.listing-category {
+    display: inline-block;
+    background: #f2f2f2;
+    color: #555;
+    padding: 5px 12px;
+    border-radius: 25px;
+    font-size: .8rem;
+    margin-bottom: 12px;
+}
+
+.my-listing-content h3 {
+    margin: 0 0 15px;
+    color: #222;
+}
+
+.listing-details {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: .95rem;
+    margin-bottom: 18px;
+}
+
+/* ==========================================
+   STATUS
+========================================== */
+
+.listing-status {
+    margin-bottom: 20px;
+}
+
+.status {
+    padding: 6px 14px;
+    border-radius: 25px;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.status.active {
+    background: #d8f7df;
+    color: #138c3d;
+}
+
+.status.sold {
+    background: #ffe3e3;
+    color: #d12b2b;
+}
+
+/* ==========================================
+   ACTION BUTTONS
+========================================== */
+
+.listing-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.listing-actions a,
+.listing-actions button {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 600;
+    font-size: .9rem;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: all .25s ease;
+}
+
+.view-button {
+    background: #1f2937;
+    color: white;
+}
+
+.view-button:hover {
+    background: #111827;
+    transform: translateY(-2px);
+}
+
+.edit-button {
+    background: #ffc904;
+    color: #000;
+}
+
+.edit-button:hover {
+    background: #ffdb55;
+    transform: translateY(-2px);
+}
+
+.delete-button {
+    background: #dc2626;
+    color: white;
+}
+
+.delete-button:hover {
+    background: #b91c1c;
+    transform: translateY(-2px);
+}
+
+/* ==========================================
+   MODAL OVERLAY
+========================================== */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+/* ==========================================
+   MODAL
+========================================== */
+
+.listing-modal {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    animation: modalFade .25s ease;
+}
+
+@keyframes modalFade {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.listing-modal h2 {
+    margin-top: 0;
+    color: #111827;
+    margin-bottom: 20px;
+}
+
+.listing-modal label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #444;
+}
+
+.listing-modal input,
+.listing-modal select {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: .95rem;
+    box-sizing: border-box;
+}
+
+.listing-modal input:focus,
+.listing-modal select:focus {
+    outline: none;
+    border-color: #ffc904;
+    box-shadow: 0 0 0 3px rgba(255,201,4,.25);
+}
+
+/* ==========================================
+   DELETE MODAL
+========================================== */
+
+.delete-modal {
+    text-align: center;
+}
+
+.delete-modal p {
+    color: #555;
+    margin: 15px 0 8px;
+}
+
+.delete-modal strong {
+    display: block;
+    font-size: 1.05rem;
+    margin-bottom: 20px;
+    color: #111827;
+    word-break: break-word;
+}
+
+/* ==========================================
+   MODAL BUTTONS
+========================================== */
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: .95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .25s ease;
+}
+
+.cancel-button {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.cancel-button:hover {
+    background: #d1d5db;
+}
+
+.save-button {
+    background: #ffc904;
+    color: #000;
+}
+
+.save-button:hover {
+    background: #ffdb55;
+}
+
+.delete-confirm-button {
+    background: #dc2626;
+    color: white;
+}
+
+.delete-confirm-button:hover {
+    background: #b91c1c;
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 992px) {
+
+    .my-listings-page {
+        padding: 25px;
+    }
+
+    .my-listings-hero {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .listing-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .post-item-button {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .my-listings-page {
+        padding: 18px;
+    }
+
+    .my-listings-hero {
+        padding: 25px;
+    }
+
+    .my-listings-hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .listing-actions {
+        flex-direction: column;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+    .listing-modal {
+        padding: 22px;
+    }
+}
+
+@media (max-width: 500px) {
+
+    .my-listings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .my-listing-image {
+        height: 190px;
+    }
+
+    .listing-details {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .listing-price {
+        font-size: .9rem;
+    }
+}

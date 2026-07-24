@@ -1,0 +1,158 @@
+.about-hero {
+    position: relative;
+    min-height: 520px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 8%;
+
+    background-image:
+        url("https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1800&q=90");
+
+    background-size: cover;
+    background-position: center;
+}
+
+.about-hero-overlay {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0,0,0,.90),
+            rgba(0,0,0,.65),
+            rgba(0,0,0,.25)
+        );
+}
+
+.about-hero-content {
+    position: relative;
+    z-index: 2;
+
+    max-width: 650px;
+
+    color: white;
+}
+
+.about-hero h1 {
+    font-size: clamp(48px,6vw,72px);
+    line-height: 1.05;
+
+    margin: 18px 0;
+}
+
+.about-hero h1 span {
+    color: var(--gold);
+}
+
+.about-hero-description {
+    font-size: 18px;
+    line-height: 1.8;
+
+    margin-bottom: 35px;
+
+    color: #eeeeee;
+}
+
+/* ========================= */
+
+.about-story {
+
+    padding: 90px 8%;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    gap: 70px;
+
+    align-items: center;
+
+    background: var(--cream);
+}
+
+.about-story-image {
+
+    min-height: 480px;
+
+    border-radius: 18px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    background-image:
+        linear-gradient(rgba(0,0,0,.10),rgba(0,0,0,.45)),
+        url("https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1200&q=90");
+
+    background-size: cover;
+    background-position: center;
+}
+
+.about-story-badge {
+
+    position: absolute;
+
+    left: 30px;
+    bottom: 30px;
+
+    background: var(--gold);
+
+    color: var(--black);
+
+    font-weight: 700;
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+}
+
+.about-story-content h2 {
+
+    font-size: clamp(34px,4vw,48px);
+
+    margin: 15px 0 20px;
+}
+
+.about-story-content h2 span {
+    color: var(--dark-gold);
+}
+
+.about-story-content p {
+
+    color: var(--gray);
+
+    line-height: 1.9;
+}
+
+.about-story-content ul {
+
+    list-style: none;
+
+    margin-top: 28px;
+
+    display: grid;
+
+    gap: 12px;
+}
+
+.about-story-content li::before {
+
+    content: "✓";
+
+    color: var(--gold);
+
+    margin-right: 12px;
+
+    font-weight: bold;
+}
+
+@media(max-width:900px){
+
+    .about-story{
+
+        grid-template-columns:1fr;
+    }
+
+}
