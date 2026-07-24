@@ -19,7 +19,6 @@ import Notifications from "./pages/Notifications";
 import SavedItems from "./pages/SavedItems";
 import PostItem from "./pages/PostItem";
 import ProtectedRoute from "./components/ProtectedRoute";
-import VerifyEmail from "./pages/VerifyEmail";
 import Profile from "./pages/Profile";
 import MyListings from "./pages/MyListings";
 
