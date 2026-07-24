@@ -28,6 +28,13 @@ app.use('/users', usersRouter);
 app.use("/auth", authRouter);
 app.use('/api/zipcode', zipcodeRouter);
 
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "KnightMarketplace API",
+  });
+});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

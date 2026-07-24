@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   server-ci:
-    name: Server Install and Validation
+    name: Server Tests
     runs-on: ubuntu-latest
 
     defaults:
@@ -38,8 +38,10 @@ jobs:
       - name: Install server dependencies
         run: npm ci
 
-      - name: Verify backend entry point
-        run: test -f ./bin/www
+      - name: Run server tests
+        run: npm test
+        env:
+          NODE_ENV: test
 
   client-ci:
     name: Client Tests and Build
