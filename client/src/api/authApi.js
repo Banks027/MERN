@@ -113,12 +113,12 @@ export async function loginUser({
 
   return data;
 }
-
+/*
 export async function getCurrentUser() {
   const response = await fetch("/auth/me", {
     method: "GET",
     credentials: "include",
-  });
+  }); */ //causing 401 errors on site
 
   const data = await readJson(response);
 
@@ -132,13 +132,13 @@ export async function getCurrentUser() {
 
   return data;
 }
-
+/*
 export async function refreshSession() {
   const response = await fetch("/auth/refresh", {
     method: "POST",
     credentials: "include",
   });
-
+*/  //causing 401 errors on site
   const data = await readJson(response);
 
   if (!response.ok) {
