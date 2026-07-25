@@ -32,7 +32,7 @@ function Dashboard() {
     try {
       await logout();
 
-      navigate("/login", {
+      navigate("/", {
         replace: true,
       });
     } catch (error) {

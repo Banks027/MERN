@@ -22,8 +22,17 @@ function Login() {
     Login from a protected listing action:
     sends the user back to the page they came from.
   */
-  const destination =
+  const requestedDestination =
     location.state?.from || "/dashboard";
+
+  const isAuthPage =
+    requestedDestination.startsWith("/login") ||
+    requestedDestination.startsWith("/register") ||
+    requestedDestination.startsWith("/verify-email");
+
+  const destination = isAuthPage
+    ? "/dashboard"
+    : requestedDestination;
 
   const [formData, setFormData] = useState({
     email: "",

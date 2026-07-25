@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "../context/AuthContext";
 
 function GoogleAuthButton({
   destination = "/dashboard",
@@ -9,6 +10,7 @@ function GoogleAuthButton({
   width = "354",
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
   async function handleGoogleSuccess(credentialResponse) {
     const credential = credentialResponse?.credential;
@@ -42,6 +44,10 @@ function GoogleAuthButton({
           data.message || "Google authentication failed."
         );
       }
+
+      const authenticatedUser = data.user ?? data;
+
+      login(authenticatedUser);
 
       navigate(destination, {
         replace: true,
@@ -85,11 +91,7 @@ function GoogleAuthButton({
         useOneTap={false}
       />
 
-      {isLoading && (
-        <p role="status">
-          Signing in...
-        </p>
-      )}
+      {isLoading && <p role="status">Signing in...</p>}
     </div>
   );
 }

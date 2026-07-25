@@ -11,6 +11,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
 import Listings from "./pages/Listings";
 import About from "./pages/About";
@@ -50,6 +51,11 @@ function App() {
         <Route
           path="/register"
           element={<Register />}
+        />
+        
+        <Route 
+          path="/verify-email" 
+          element={<VerifyEmail />} 
         />
 
         <Route
