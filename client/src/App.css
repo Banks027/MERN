@@ -176,7 +176,7 @@ button {
 
 .hero-label,
 .section-label {
-  color: var(--gold);
+  color: var(--dark-gold);
   letter-spacing: 3px;
   font-size: 13px;
   font-weight: 700;
