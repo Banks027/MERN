@@ -599,7 +599,7 @@ button {
 }
 
 .about-content > p:not(.section-label) {
-  color: var(--gray);
+  color: #444444;
   line-height: 1.8;
 }
 
