@@ -1,11 +1,7 @@
 name: Deploy KnightMarketplace with PM2
 
 on:
-  workflow_run:
-    workflows:
-      - KnightMarketplace CI
-    types:
-      - completed
+  push:
     branches:
       - main-server-sync
 
@@ -23,10 +19,6 @@ jobs:
     name: Deploy to DigitalOcean
     runs-on: ubuntu-latest
 
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      github.event.workflow_run.conclusion == 'success'
-
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -39,27 +31,18 @@ jobs:
           script: |
             set -e
 
-            echo "Starting KnightMarketplace deployment"
-
             cd /home/mern
 
             git fetch origin
             git checkout main-server-sync
             git reset --hard origin/main-server-sync
 
-            echo "Installing server dependencies"
             cd /home/mern/server
             npm ci --omit=dev
 
-            echo "Installing client dependencies"
             cd /home/mern/client
             npm ci
-
-            echo "Building React client"
             npm run build
 
-            echo "Reloading API"
             pm2 reload knightmarket-api
             pm2 save
-
-            echo "Deployment completed successfully"
