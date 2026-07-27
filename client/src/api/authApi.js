@@ -85,6 +85,34 @@ export async function verifyEmail({
   return data;
 }
 
+export async function resendVerificationEmail({ email }) {
+  const response = await fetch(
+    "/auth/resend-verification",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        email,
+      }),
+    }
+  );
+
+  const data = await readJson(response);
+
+  if (!response.ok) {
+    throw createApiError(
+      response,
+      data,
+      "Unable to resend the verification code."
+    );
+  }
+
+  return data;
+}
+
 export async function loginUser({
   email,
   password,
@@ -113,12 +141,12 @@ export async function loginUser({
 
   return data;
 }
-/*
+
 export async function getCurrentUser() {
   const response = await fetch("/auth/me", {
     method: "GET",
     credentials: "include",
-  }); */ //causing 401 errors on site
+  });
 
   const data = await readJson(response);
 
@@ -132,13 +160,13 @@ export async function getCurrentUser() {
 
   return data;
 }
-/*
+
 export async function refreshSession() {
   const response = await fetch("/auth/refresh", {
     method: "POST",
     credentials: "include",
   });
-*/  //causing 401 errors on site
+
   const data = await readJson(response);
 
   if (!response.ok) {

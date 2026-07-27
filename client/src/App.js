@@ -1,4 +1,4 @@
-import "./App.css";
+import React, { lazy, Suspense } from "react";
 
 import {
   BrowserRouter,
@@ -6,110 +6,123 @@ import {
   Route,
 } from "react-router-dom";
 
-import PostItemPreferences from "./pages/PostItemPreferences";
+import "./App.css";
+
 import ForgotPassword from "./pages/ForgotPassword";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyEmail from "./pages/VerifyEmail";
 import Dashboard from "./pages/Dashboard";
-import Listings from "./pages/Listings";
 import About from "./pages/About";
 import ErrorPage from "./pages/ErrorPage";
 import Notifications from "./pages/Notifications";
 import SavedItems from "./pages/SavedItems";
-import PostItem from "./pages/PostItem";
-import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
-import MyListings from "./pages/MyListings";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+
+const Listings = lazy(() =>
+  import("./pages/Listings")
+);
+
+const PostItem = lazy(() =>
+  import("./pages/PostItem")
+);
+
+const MyListings = lazy(() =>
+  import("./pages/MyListings")
+);
+
+const PostItemPreferences = lazy(() =>
+  import("./pages/PostItemPreferences")
+);
 
 function App() {
   return (
     <BrowserRouter>
-
-      <Routes>
-
-
-        <Route
-        path="/post-item/preferences"
-        element={<PostItemPreferences />}
-            />
-        <Route
-          path="/"
-          element={<Home />}
-        />
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route
+            path="/"
+            element={<Home />}
+          />
 
           <Route
-           path="/forgot-password"
-          element={<ForgotPassword />}
-               />
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+            path="/forgot-password"
+            element={<ForgotPassword />}
+          />
 
-        <Route
-          path="/register"
-          element={<Register />}
-        />
-        
-        <Route 
-          path="/verify-email" 
-          element={<VerifyEmail />} 
-        />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/register"
+            element={<Register />}
+          />
 
-        <Route
-          path="/listings"
-          element={<Listings />}
-        />
+          <Route
+            path="/verify-email"
+            element={<VerifyEmail />}
+          />
 
-        <Route 
-        path="/about"
-        element={<About />} 
-        />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-        path="/post-item"
-        element={<PostItem />}
-        />
-        <Route 
-        path="*"
-        element={<ErrorPage />} 
-        />
+          <Route
+            path="/listings"
+            element={<Listings />}
+          />
 
-        <Route 
-        path="/notifications"
-        element={<Notifications />} 
-        />
+          <Route
+            path="/about"
+            element={<About />}
+          />
 
-        <Route 
-        path="/saveditems"
-        element={<SavedItems />} 
-        />
+          <Route
+            path="/post-item"
+            element={<PostItem />}
+          />
 
+          <Route
+            path="/post-item/preferences"
+            element={<PostItemPreferences />}
+          />
 
-        <Route
-        path="/profile"
-        element={<Profile />}
-        />
+          <Route
+            path="/notifications"
+            element={<Notifications />}
+          />
 
-        <Route
-        path="/my-listings"
-        element={<MyListings />} 
-        />
+          <Route
+            path="/saveditems"
+            element={<SavedItems />}
+          />
 
+          <Route
+            path="/profile"
+            element={<Profile />}
+          />
 
+          <Route
+            path="/my-listings"
+            element={<MyListings />}
+          />
 
-      </Routes>
+          <Route
+            path="*"
+            element={<ErrorPage />}
+          />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

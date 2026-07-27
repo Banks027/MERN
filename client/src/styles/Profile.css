@@ -96,7 +96,71 @@
     font-weight: 500;
 }
 
+.account-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
 
+.account-card-header h2 {
+  margin: 0;
+}
+
+.account-card-header .edit-profile-btn {
+  margin: 0;
+}
+
+.account-info input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 11px 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #111111;
+  font-family: inherit;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.account-info input:focus {
+  outline: none;
+  border-color: #ffc904;
+  box-shadow: 0 0 0 3px rgba(255, 201, 4, 0.25);
+}
+
+.profile-inline-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.profile-inline-actions button {
+  min-width: 125px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 9px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-cancel-button {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.profile-save-button {
+  background: #ffc904;
+  color: #111111;
+}
+
+.profile-inline-actions button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
 
 @media (max-width: 900px) {
 

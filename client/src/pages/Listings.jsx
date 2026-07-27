@@ -2,122 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import SignInPopup from "../components/SignInPopup";
+import { useAuth } from "../context/AuthContext";
+
 import "../styles/Listings.css";
 
-const marketplaceListings = [
-  {
-    id: 1,
-    title: 'MacBook Air M2 13"',
-    price: 750,
-    category: "Electronics",
-    condition: "Like New",
-    seller: "Jordan Knight",
-    date: "Posted 2 hours ago",
-    location: "UCF Main Campus",
-    description:
-      "MacBook Air M2 in excellent condition. Includes the original charger and protective case.",
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 2,
-    title: "Ergonomic Desk Chair",
-    price: 45,
-    category: "Furniture",
-    condition: "Good",
-    seller: "Ashley M.",
-    date: "Posted 3 hours ago",
-    location: "UCF Main Campus",
-    description:
-      "Comfortable adjustable desk chair. Great for studying or working from home.",
-    image:
-      "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 3,
-    title: "Calculus Textbook",
-    price: 80,
-    category: "Textbooks",
-    condition: "Good",
-    seller: "Michael R.",
-    date: "Posted 5 hours ago",
-    location: "UCF Main Campus",
-    description:
-      "Calculus: Early Transcendentals textbook. Some highlighting, but all pages are intact.",
-    image:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 4,
-    title: "Nike Backpack",
-    price: 30,
-    category: "Clothing",
-    condition: "Like New",
-    seller: "Taylor S.",
-    date: "Posted 6 hours ago",
-    location: "UCF Main Campus",
-    description:
-      "Black Nike backpack with several compartments. Clean and lightly used.",
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 5,
-    title: "Gaming Monitor",
-    price: 150,
-    category: "Electronics",
-    condition: "Excellent",
-    seller: "Chris P.",
-    date: "Posted yesterday",
-    location: "UCF Main Campus",
-    description:
-      "24-inch gaming monitor with a fast refresh rate. Includes HDMI cable and power cord.",
-    image:
-      "https://images.unsplash.com/photo-1527443154391-507e9dc6c5cc?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 6,
-    title: "Mini Refrigerator",
-    price: 90,
-    category: "Dorm Essentials",
-    condition: "Good",
-    seller: "Emily K.",
-    date: "Posted yesterday",
-    location: "UCF Main Campus",
-    description:
-      "Compact mini refrigerator that is perfect for a dorm room. Clean and working properly.",
-    image:
-      "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 7,
-    title: "Modern Desk Lamp",
-    price: 20,
-    category: "Furniture",
-    condition: "Like New",
-    seller: "David L.",
-    date: "Posted 2 days ago",
-    location: "UCF Main Campus",
-    description:
-      "Modern adjustable desk lamp with multiple brightness settings.",
-    image:
-      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 8,
-    title: "iPad Air",
-    price: 425,
-    category: "Electronics",
-    condition: "Excellent",
-    seller: "Sarah W.",
-    date: "Posted 2 days ago",
-    location: "UCF Main Campus",
-    description:
-      "iPad Air in excellent condition. Includes charger and protective case.",
-    image:
-      "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=900&q=80",
-  },
-];
+const DEFAULT_LISTING_IMAGE =
+  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80";
 
 const categories = [
   "All",
@@ -128,14 +18,146 @@ const categories = [
   "Dorm Essentials",
 ];
 
+function getSellerName(listing) {
+  return (
+    listing.seller?.displayName ||
+    "KnightMarketplace Seller"
+  );
+}
+
+function getListingImage(listing) {
+  if (
+    Array.isArray(listing.images) &&
+    listing.images.length > 0
+  ) {
+    return listing.images[0];
+  }
+
+  return DEFAULT_LISTING_IMAGE;
+}
+
+function getPaymentMethods(listing) {
+  if (
+    Array.isArray(listing.paymentMethods) &&
+    listing.paymentMethods.length > 0
+  ) {
+    return listing.paymentMethods.join(", ");
+  }
+
+  return "Not specified";
+}
+
+function getCampusStatus(listing) {
+  const UCF_MAIN_CAMPUS_ZIP_CODES = [
+    "32816",
+  ];
+
+  const zipCode = String(
+    listing.zipCode || ""
+  ).trim();
+
+  if (
+    UCF_MAIN_CAMPUS_ZIP_CODES.includes(zipCode)
+  ) {
+    return "On-campus student";
+  }
+
+  return "Off-campus student";
+}
+
+function formatListingDate(createdAt) {
+  if (!createdAt) {
+    return "Recently posted";
+  }
+
+  const date = new Date(createdAt);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Recently posted";
+  }
+
+  return `Posted ${date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  })}`;
+}
+
+function formatPrice(price) {
+  const numericPrice = Number(price);
+
+  if (!Number.isFinite(numericPrice)) {
+    return "$0.00";
+  }
+
+  return numericPrice.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+}
+
+
+function formatPhoneNumber(phoneNumber) {
+  const digits = String(phoneNumber || "").replace(/\D/g, "");
+
+  if (digits.length === 10) {
+    return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  }
+
+  if (digits.length === 11 && digits.startsWith("1")) {
+    return `+1 (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
+  }
+
+  return phoneNumber || "No phone number provided";
+}
+
 function Listings() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const [listings, setListings] = useState([]);
+  const [isLoadingListings, setIsLoadingListings] =
+    useState(true);
+  const [listingsError, setListingsError] =
+    useState("");
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    async function loadListings() {
+      setIsLoadingListings(true);
+      setListingsError("");
+
+      try {
+        const response = await fetch("/api/listings", {
+          credentials: "include",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message || "Unable to load listings."
+          );
+        }
+
+        setListings(
+          Array.isArray(data.listings)
+            ? data.listings
+            : []
+        );
+      } catch (error) {
+        setListingsError(
+          error.message || "Unable to load listings."
+        );
+      } finally {
+        setIsLoadingListings(false);
+      }
+    }
+
+    loadListings();
   }, []);
 
-  const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] =
     useState("All");
   const [selectedListing, setSelectedListing] =
@@ -144,42 +166,27 @@ function Listings() {
     useState(false);
   const [pendingAction, setPendingAction] =
     useState("");
+  const [showContactInfo, setShowContactInfo] =
+    useState(false);
 
-  const isLoggedIn = Boolean(
-    localStorage.getItem("token")
-  );
+  const isLoggedIn = Boolean(user);
 
-  const filteredListings = marketplaceListings.filter(
-    (listing) => {
-      const searchText = search.trim().toLowerCase();
-
-      const matchesSearch =
-        listing.title
-          .toLowerCase()
-          .includes(searchText) ||
-        listing.category
-          .toLowerCase()
-          .includes(searchText) ||
-        listing.seller
-          .toLowerCase()
-          .includes(searchText);
-
-      const matchesCategory =
-        selectedCategory === "All" ||
-        listing.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
-    }
+  const filteredListings = listings.filter(
+    (listing) =>
+      selectedCategory === "All" ||
+      listing.category === selectedCategory
   );
 
   function openListing(listing) {
     setSelectedListing(listing);
+    setShowContactInfo(false);
   }
 
   function closeListing() {
     setSelectedListing(null);
     setShowSignInPopup(false);
     setPendingAction("");
+    setShowContactInfo(false);
   }
 
   function requireSignIn(action, listing) {
@@ -194,19 +201,9 @@ function Listings() {
     performLoggedInAction(action, listing);
   }
 
-  function performLoggedInAction(action, listing) {
-    if (action === "save") {
-      alert(`${listing.title} was saved.`);
-    }
-
-    if (action === "message") {
-      alert(`Opening messages with ${listing.seller}.`);
-    }
-
+  function performLoggedInAction(action) {
     if (action === "contact") {
-      alert(
-        `Opening contact options for ${listing.seller}.`
-      );
+      setShowContactInfo(true);
     }
   }
 
@@ -218,7 +215,7 @@ function Listings() {
       return;
     }
 
-    navigate("/dashboard");
+    navigate("/post-item");
   }
 
   return (
@@ -262,33 +259,9 @@ function Listings() {
             <h1>Browse All Listings</h1>
 
             <p className="all-listings-intro">
-              Find textbooks, electronics, furniture,
-              clothing, and dorm essentials from fellow
-              UCF students.
+              Browse textbooks, electronics, furniture,
+              clothing, and more from verified UCF students.
             </p>
-
-            <div className="all-listings-search-box">
-              <span aria-hidden="true">⌕</span>
-
-              <input
-                type="text"
-                placeholder="Search by item, category, or seller..."
-                value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-              />
-
-              {search && (
-                <button
-                  type="button"
-                  className="clear-search-button"
-                  onClick={() => setSearch("")}
-                >
-                  Clear
-                </button>
-              )}
-            </div>
           </div>
         </section>
 
@@ -299,10 +272,9 @@ function Listings() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setSelectedCategory("All");
-                  setSearch("");
-                }}
+                onClick={() =>
+                  setSelectedCategory("All")
+                }
               >
                 Reset
               </button>
@@ -326,7 +298,7 @@ function Listings() {
 
                   <span>
                     {
-                      marketplaceListings.filter(
+                      listings.filter(
                         (listing) =>
                           category === "All" ||
                           listing.category ===
@@ -347,8 +319,8 @@ function Listings() {
 
               <p>
                 {isLoggedIn
-                  ? "You can save items, contact sellers, and manage your account."
-                  : "You can browse and view details. Sign in to save items or contact sellers."}
+                  ? "You can view listings, contact sellers, and manage your account."
+                  : "You can browse and view details. Sign in to contact sellers."}
               </p>
 
               {!isLoggedIn && (
@@ -377,35 +349,33 @@ function Listings() {
                 </h2>
               </div>
 
-              <select
-                aria-label="Sort listings"
-                defaultValue="newest"
-              >
-                <option value="newest">
-                  Newest first
-                </option>
-
-                <option value="low">
-                  Price: Low to High
-                </option>
-
-                <option value="high">
-                  Price: High to Low
-                </option>
-              </select>
             </div>
 
-            {filteredListings.length > 0 ? (
+            {isLoadingListings ? (
+              <div className="no-listings-found">
+                <h3>Loading listings...</h3>
+
+                <p>
+                  Retrieving the newest marketplace items.
+                </p>
+              </div>
+            ) : listingsError ? (
+              <div className="no-listings-found">
+                <h3>Unable to load listings</h3>
+
+                <p>{listingsError}</p>
+              </div>
+            ) : filteredListings.length > 0 ? (
               <div className="all-listings-grid">
                 {filteredListings.map(
                   (listing) => (
                     <article
                       className="all-listing-card"
-                      key={listing.id}
+                      key={listing._id}
                     >
                       <div className="all-listing-image-wrapper">
                         <img
-                          src={listing.image}
+                          src={getListingImage(listing)}
                           alt={listing.title}
                         />
 
@@ -413,19 +383,6 @@ function Listings() {
                           {listing.condition}
                         </span>
 
-                        <button
-                          type="button"
-                          className="listing-heart-button"
-                          aria-label={`Save ${listing.title}`}
-                          onClick={() =>
-                            requireSignIn(
-                              "save",
-                              listing
-                            )
-                          }
-                        >
-                          ♡
-                        </button>
                       </div>
 
                       <div className="all-listing-card-content">
@@ -436,26 +393,35 @@ function Listings() {
                         <h3>{listing.title}</h3>
 
                         <p className="card-price">
-                          ${listing.price}
+                          {formatPrice(listing.price)}
                         </p>
 
                         <div className="listing-location">
-                          <span>📍</span>
-                          <p>{listing.location}</p>
+                          <span>💳</span>
+                          <p>{getPaymentMethods(listing)}</p>
+                        </div>
+
+                        <div className="listing-campus-status">
+                          <span>🎓</span>
+                          <p>{getCampusStatus(listing)}</p>
                         </div>
 
                         <div className="listing-seller-row">
                           <div className="small-seller-avatar">
-                            {listing.seller.charAt(0)}
+                            {getSellerName(listing)
+                              .charAt(0)
+                              .toUpperCase()}
                           </div>
 
                           <div>
                             <strong>
-                              {listing.seller}
+                              {getSellerName(listing)}
                             </strong>
 
                             <small>
-                              {listing.date}
+                              {formatListingDate(
+                                listing.createdAt
+                              )}
                             </small>
                           </div>
                         </div>
@@ -481,15 +447,14 @@ function Listings() {
                 <h3>No listings found</h3>
 
                 <p>
-                  Try another search or category.
+                  Try another category.
                 </p>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearch("");
-                    setSelectedCategory("All");
-                  }}
+                  onClick={() =>
+                    setSelectedCategory("All")
+                  }
                 >
                   View All Listings
                 </button>
@@ -521,7 +486,7 @@ function Listings() {
 
             <div className="listing-details-image">
               <img
-                src={selectedListing.image}
+                src={getListingImage(selectedListing)}
                 alt={selectedListing.title}
               />
 
@@ -537,17 +502,30 @@ function Listings() {
 
               <h2>{selectedListing.title}</h2>
 
-              <h3>${selectedListing.price}</h3>
+              <h3>
+                {formatPrice(selectedListing.price)}
+              </h3>
 
               <div className="listing-details-meta">
                 <span>
-                  📍 {selectedListing.location}
+                  💳 {getPaymentMethods(selectedListing)}
                 </span>
 
                 <span>
-                  {selectedListing.date}
+                  🎓 {getCampusStatus(selectedListing)}
+                </span>
+
+                <span>
+                  {formatListingDate(
+                    selectedListing.createdAt
+                  )}
                 </span>
               </div>
+
+              <p className="campus-status-note">
+                Campus status is estimated from the ZIP code
+                provided by the seller.
+              </p>
 
               <div className="listing-description">
                 <h4>Description</h4>
@@ -557,56 +535,69 @@ function Listings() {
                 </p>
               </div>
 
+              <div className="listing-meeting-details">
+                <h4>Meeting Details</h4>
+
+                <div className="meeting-detail-group">
+                  <strong>Preferred Meetup Locations</strong>
+
+                  {Array.isArray(
+                    selectedListing.meetupLocations
+                  ) &&
+                  selectedListing.meetupLocations.length > 0 ? (
+                    <ul>
+                      {selectedListing.meetupLocations.map(
+                        (location, index) => (
+                          <li key={`${location}-${index}`}>
+                            {location}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  ) : (
+                    <p>No meetup locations were provided.</p>
+                  )}
+                </div>
+
+                <div className="meeting-detail-group">
+                  <strong>Meeting Description</strong>
+
+                  <p>
+                    {selectedListing.buyerInformation ||
+                      "No additional meeting instructions were provided."}
+                  </p>
+                </div>
+              </div>
+
               <div className="listing-seller-box">
                 <div className="listing-seller-avatar">
-                  {selectedListing.seller.charAt(0)}
+                  {getSellerName(selectedListing)
+                    .charAt(0)
+                    .toUpperCase()}
                 </div>
 
                 <div>
                   <small>Seller</small>
 
                   <strong>
-                    {selectedListing.seller}
+                    {getSellerName(selectedListing)}
                   </strong>
 
-                  <p>Verified UCF Student</p>
+                  <p>
+                    {selectedListing.seller?.verifiedStudent
+                      ? "Verified UCF Student"
+                      : "Marketplace Seller"}
+                  </p>
                 </div>
               </div>
 
               {!isLoggedIn && (
                 <div className="login-required-message">
-                  Sign in to save this item or contact
-                  the seller.
+                  Sign in to contact the seller.
                 </div>
               )}
 
               <div className="listing-action-buttons">
-                <button
-                  type="button"
-                  className="save-listing-button"
-                  onClick={() =>
-                    requireSignIn(
-                      "save",
-                      selectedListing
-                    )
-                  }
-                >
-                  ♡ Save Item
-                </button>
-
-                <button
-                  type="button"
-                  className="message-listing-button"
-                  onClick={() =>
-                    requireSignIn(
-                      "message",
-                      selectedListing
-                    )
-                  }
-                >
-                  💬 Message Seller
-                </button>
-
                 <button
                   type="button"
                   className="contact-listing-button"
@@ -619,6 +610,38 @@ function Listings() {
                 >
                   Contact Seller
                 </button>
+              </div>
+
+              <div className="listing-contact-area">
+                <div
+                  className={
+                    showContactInfo
+                      ? "listing-contact-panel visible"
+                      : "listing-contact-panel hidden"
+                  }
+                >
+                  <small>Seller contact number</small>
+
+                  {selectedListing.contactPhone ? (
+                    <a
+                      href={`tel:${selectedListing.contactPhone}`}
+                    >
+                      {formatPhoneNumber(
+                        selectedListing.contactPhone
+                      )}
+                    </a>
+                  ) : (
+                    <p>
+                      The seller did not provide a contact
+                      number.
+                    </p>
+                  )}
+
+                  <p>
+                    Mention the listing title when contacting
+                    the seller.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

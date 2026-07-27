@@ -6,7 +6,10 @@ import {
 } from "react-router-dom";
 
 import "../styles/VerifyEmail.css";
-import { verifyEmail } from "../api/authApi";
+import {
+  resendVerificationEmail,
+  verifyEmail,
+} from "../api/authApi";
 
 function VerifyEmail() {
   const navigate = useNavigate();
@@ -37,6 +40,15 @@ function VerifyEmail() {
   const [isSubmitting, setIsSubmitting] =
     useState(false);
 
+  const [isResending, setIsResending] =
+    useState(false);
+
+  const [resendCooldown, setResendCooldown] =
+    useState(60);
+
+  const [verificationComplete, setVerificationComplete] =
+    useState(false);
+
   useEffect(() => {
     if (!email) {
       setErrorMessage(
@@ -45,6 +57,22 @@ function VerifyEmail() {
     }
   }, [email]);
 
+  useEffect(() => {
+    if (resendCooldown <= 0) {
+      return undefined;
+    }
+
+    const timerId = window.setInterval(() => {
+      setResendCooldown((currentValue) =>
+        Math.max(currentValue - 1, 0)
+      );
+    }, 1000);
+
+    return () => {
+      window.clearInterval(timerId);
+    };
+  }, [resendCooldown]);
+
   function handleCodeChange(event) {
     const digitsOnly = event.target.value
       .replace(/\D/g, "")
@@ -52,6 +80,95 @@ function VerifyEmail() {
 
     setVerificationCode(digitsOnly);
     setErrorMessage("");
+  }
+
+  async function handleResendCode() {
+    if (
+      !email ||
+      isResending ||
+      resendCooldown > 0 ||
+      successMessage
+    ) {
+      return;
+    }
+
+    setErrorMessage("");
+    setSuccessMessage("");
+    setIsResending(true);
+
+    try {
+      const data = await resendVerificationEmail({
+        email,
+      });
+
+      setSuccessMessage(
+        data.message ||
+          "A new verification code has been sent."
+      );
+
+      setResendCooldown(
+        Number.isFinite(data.retryAfterSeconds)
+          ? data.retryAfterSeconds
+          : 60
+      );
+    } catch (error) {
+      if (error.code === "RESEND_COOLDOWN") {
+        const retryAfterSeconds =
+          error.data?.retryAfterSeconds;
+
+        setResendCooldown(
+          Number.isFinite(retryAfterSeconds)
+            ? retryAfterSeconds
+            : 60
+        );
+
+        setErrorMessage(
+          error.message ||
+            "Please wait before requesting another code."
+        );
+
+        return;
+      }
+
+      if (error.code === "EMAIL_ALREADY_VERIFIED") {
+        setVerificationComplete(true);
+        
+        sessionStorage.removeItem(
+          "pendingRegistrationEmail"
+        );
+
+        setSuccessMessage(
+          "This email has already been verified. Redirecting you to sign in..."
+        );
+
+        window.setTimeout(() => {
+          navigate("/login", {
+            replace: true,
+            state: {
+              email,
+              from: destination,
+            },
+          });
+        }, 1200);
+
+        return;
+      }
+
+      if (error.code === "USER_NOT_FOUND") {
+        setErrorMessage(
+          "We could not find an account for this email address."
+        );
+
+        return;
+      }
+
+      setErrorMessage(
+        error.message ||
+          "Unable to resend the verification code."
+      );
+    } finally {
+      setIsResending(false);
+    }
   }
 
   async function handleSubmit(event) {
@@ -80,6 +197,8 @@ function VerifyEmail() {
         email,
         verificationCode,
       });
+
+      setVerificationComplete(true);
 
       sessionStorage.removeItem(
         "pendingRegistrationEmail"
@@ -128,6 +247,8 @@ function VerifyEmail() {
       }
 
       if (error.code === "EMAIL_ALREADY_VERIFIED") {
+        setVerificationComplete(true);
+
         sessionStorage.removeItem(
           "pendingRegistrationEmail"
         );
@@ -223,7 +344,7 @@ function VerifyEmail() {
               onChange={handleCodeChange}
               maxLength={6}
               disabled={
-                isSubmitting || Boolean(successMessage)
+                isSubmitting || verificationComplete
               }
               aria-describedby="verification-help"
               autoFocus
@@ -240,7 +361,7 @@ function VerifyEmail() {
             className="verify-email-button"
             disabled={
               isSubmitting ||
-              Boolean(successMessage) ||
+              verificationComplete ||
               !email
             }
           >
@@ -250,10 +371,30 @@ function VerifyEmail() {
           </button>
         </form>
 
-        <p className="verify-email-note">
-          Did not receive the code? Check your spam
-          folder. We will add a resend option next.
-        </p>
+        <div className="verify-email-resend">
+          <p className="verify-email-note">
+            Did not receive the code? Check your spam folder or request a new one.
+          </p>
+
+          <button
+            type="button"
+            className="verify-email-resend-button"
+            onClick={handleResendCode}
+            disabled={
+              !email ||
+              isSubmitting ||
+              isResending ||
+              resendCooldown > 0 ||
+              verificationComplete
+            }
+          >
+            {isResending
+              ? "Sending..."
+              : resendCooldown > 0
+                ? `Resend Code (${resendCooldown}s)`
+                : "Resend Code"}
+          </button>
+        </div>
 
         <p className="verify-email-switch">
           Entered the wrong email?{" "}

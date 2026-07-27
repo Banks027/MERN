@@ -807,3 +807,132 @@
     min-height: 260px;
   }
 }
+
+/* =========================
+   CAMPUS STATUS
+========================= */
+
+.listing-campus-status {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.listing-campus-status p {
+  margin: 0;
+  color: #686868;
+  font-size: 0.86rem;
+}
+
+.campus-status-note {
+  margin: 10px 0 0;
+  color: #777777;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+/* =========================
+   SELLER CONTACT PANEL
+========================= */
+
+.listing-contact-panel {
+  min-height: 112px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid #e0d58e;
+  border-radius: 12px;
+  background: #fff9df;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
+}
+
+.listing-contact-panel.hidden {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.listing-contact-panel.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.listing-contact-panel small {
+  display: block;
+  margin-bottom: 7px;
+  color: #665817;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.listing-contact-panel a {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #111111;
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.listing-contact-panel a:hover {
+  text-decoration: underline;
+}
+
+.listing-contact-panel p {
+  margin: 4px 0 0;
+  color: #5c5540;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+/* =========================
+   MEETING DETAILS
+========================= */
+
+.listing-meeting-details {
+  margin: 24px 0;
+  padding: 18px;
+  background: #f6f6f3;
+  border: 1px solid #e7e7e2;
+  border-radius: 13px;
+}
+
+.listing-meeting-details h4 {
+  margin: 0 0 16px;
+  color: #171717;
+  font-size: 1rem;
+}
+
+.meeting-detail-group + .meeting-detail-group {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #deded8;
+}
+
+.meeting-detail-group strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #333333;
+  font-size: 0.86rem;
+}
+
+.meeting-detail-group p,
+.listing-meeting-details > p {
+  margin: 0;
+  color: #5e5e5e;
+  line-height: 1.6;
+}
+
+.meeting-detail-group ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #5e5e5e;
+}
+
+.meeting-detail-group li {
+  margin: 5px 0;
+  line-height: 1.5;
+}

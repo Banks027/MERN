@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import "../styles/Login.css";
+import GoogleAuthProvider from "../components/GoogleAuthProvider";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { loginUser } from "../api/authApi";
 import { useAuth } from "../context/AuthContext";
@@ -247,13 +248,15 @@ function Login() {
             </div>
 
             <div className="google-button-wrapper">
-              <GoogleAuthButton
-                width="354"
-                destination={destination}
-                navigate={navigate}
-                location={location}
-                onErrorMessage={setErrorMessage}
-              />
+              <GoogleAuthProvider>    
+                <GoogleAuthButton
+                  width="354"
+                  destination={destination}
+                  navigate={navigate}
+                  location={location}
+                  onErrorMessage={setErrorMessage}
+                />
+              </GoogleAuthProvider> 
             </div>
 
             <p className="auth-switch">

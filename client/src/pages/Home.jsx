@@ -10,71 +10,16 @@ import AboutSection from "../components/AboutSection";
 import Footer from "../components/Footer";
 import SignInPopup from "../components/SignInPopup";
 
-const listings = [
-  {
-    id: 1,
-    title: 'MacBook Air M2 13"',
-    price: 750,
-    category: "Electronics",
-    condition: "Like New",
-    seller: "Jordan Knight",
-    date: "Posted 2 hours ago",
-    location: "UCF Main Campus",
-    description:
-      "MacBook Air M2 in excellent condition. Includes the original charger and protective case.",
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 2,
-    title: "Ergonomic Desk Chair",
-    price: 45,
-    category: "Furniture",
-    condition: "Good",
-    seller: "Ashley M.",
-    date: "Posted 3 hours ago",
-    location: "UCF Main Campus",
-    description:
-      "Comfortable adjustable desk chair. Great for studying or working from home.",
-    image:
-      "https://images.unsplash.com/photo-1580480055273-228ff5388ef8?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 3,
-    title: "Calculus Textbook",
-    price: 80,
-    category: "Textbooks",
-    condition: "Good",
-    seller: "Michael R.",
-    date: "Posted 5 hours ago",
-    location: "UCF Main Campus",
-    description:
-      "Calculus: Early Transcendentals textbook. Some highlighting, but all pages are intact.",
-    image:
-      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=900&q=80",
-  },
-  {
-    id: 4,
-    title: "Nike Backpack",
-    price: 30,
-    category: "Clothing",
-    condition: "Like New",
-    seller: "Taylor S.",
-    date: "Posted 6 hours ago",
-    location: "UCF Main Campus",
-    description:
-      "Black Nike backpack with several compartments. Clean and lightly used.",
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=80",
-  },
-];
-
 function Home() {
   const location = useLocation();
 
   const [selectedListing, setSelectedListing] = useState(null);
   const [showSignInPopup, setShowSignInPopup] = useState(false);
   const [pendingAction, setPendingAction] = useState("");
+
+  const [listings, setListings] = useState([]);
+  const [isLoadingListings, setIsLoadingListings] =
+    useState(true);
 
   function openListing(listing) {
     setSelectedListing(listing);
@@ -102,6 +47,34 @@ function Home() {
   }
 
   useEffect(() => {
+  async function loadListings() {
+    try {
+      const response = await fetch("/api/listings?limit=4");
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to load listings."
+        );
+      }
+
+      setListings(
+        Array.isArray(data.listings)
+          ? data.listings
+          : []
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingListings(false);
+    }
+  }
+
+  loadListings();
+}, []);
+
+useEffect(() => {
     const returnedListingId = location.state?.listingId;
 
     if (!returnedListingId) {
@@ -109,7 +82,8 @@ function Home() {
     }
 
     const returnedListing = listings.find(
-      (listing) => listing.id === Number(returnedListingId)
+      (listing) =>
+        String(listing._id) === String(returnedListingId)
     );
 
     if (returnedListing) {
@@ -125,7 +99,7 @@ function Home() {
       document.title,
       window.location.pathname
     );
-  }, [location.state]);
+  }, [location.state, listings]);
 
   return (
     <div className="website">
@@ -136,12 +110,18 @@ function Home() {
 
         <WhyKnightMarketplace />
 
-        <FeaturedListings
-          filteredListings={listings}
-          openListing={openListing}
-          requireSignIn={requireSignIn}
-          viewAllListings={viewAllListings}
-        />
+        {isLoadingListings ? (
+          <section className="listing-section">
+            <h2>Loading listings...</h2>
+          </section>
+        ) : (
+          <FeaturedListings
+            filteredListings={listings}
+            openListing={openListing}
+            requireSignIn={requireSignIn}
+            viewAllListings={viewAllListings}
+          />
+        )}
 
         <HowItWorks />
 
@@ -169,7 +149,10 @@ function Home() {
 
             <div className="listing-modal-image">
               <img
-                src={selectedListing.image}
+                src={
+                  selectedListing.images?.[0] ||
+                  "/placeholder-image.png"
+                }
                 alt={selectedListing.title}
               />
             </div>
@@ -181,16 +164,35 @@ function Home() {
 
               <h2>{selectedListing.title}</h2>
 
-              <h3>${selectedListing.price}</h3>
+              <h3>
+                {Number(selectedListing.price || 0).toLocaleString(
+                  "en-US",
+                  {
+                    style: "currency",
+                    currency: "USD",
+                  }
+                )}
+              </h3>
 
               <div className="listing-tags">
                 <span>{selectedListing.condition}</span>
 
                 <span>
-                  📍 {selectedListing.location}
+                  📍{" "}
+                  {selectedListing.zipCode === "32816"
+                    ? "UCF Main Campus"
+                    : selectedListing.zipCode
+                      ? `ZIP ${selectedListing.zipCode}`
+                      : "Orlando, FL"}
                 </span>
 
-                <span>{selectedListing.date}</span>
+                <span>
+                  {selectedListing.createdAt
+                    ? `Posted ${new Date(
+                        selectedListing.createdAt
+                      ).toLocaleDateString("en-US")}`
+                    : "Recently posted"}
+                </span>
               </div>
 
               <div className="modal-description">
@@ -201,13 +203,23 @@ function Home() {
 
               <div className="seller-box">
                 <div className="seller-avatar">
-                  {selectedListing.seller.charAt(0)}
+                  {(selectedListing.sellerName ||
+                    selectedListing.user?.displayName ||
+                    selectedListing.user?.firstName ||
+                    "K")
+                    .charAt(0)
+                    .toUpperCase()}
                 </div>
 
                 <div>
                   <small>Seller</small>
 
-                  <strong>{selectedListing.seller}</strong>
+                  <strong>
+                    {selectedListing.sellerName ||
+                      selectedListing.user?.displayName ||
+                      selectedListing.user?.firstName ||
+                      "KnightMarketplace User"}
+                  </strong>
 
                   <p>UCF Student</p>
                 </div>

@@ -57,6 +57,57 @@ async function sendVerificationEmail({
   return data;
 }
 
+async function sendStudentVerificationEmail({
+  to,
+  displayName,
+  verificationCode,
+}) {
+  const resend = getResendClient();
+
+  const { data, error } = await resend.emails.send({
+    from: process.env.EMAIL_FROM,
+    to,
+    subject: "Verify your UCF student email",
+
+    html: `
+      <div style="font-family:Arial,sans-serif;padding:30px">
+        <h2>Verify your UCF email</h2>
+
+        <p>Hello ${displayName},</p>
+
+        <p>
+          Use the following code to verify your UCF student email
+          for KnightMarketplace:
+        </p>
+
+        <h1
+          style="
+            letter-spacing:8px;
+            font-size:40px;
+            color:#6b46c1;
+          "
+        >
+          ${verificationCode}
+        </h1>
+
+        <p>This code expires in 10 minutes.</p>
+
+        <p>
+          If you did not request student verification,
+          you can safely ignore this email.
+        </p>
+      </div>
+    `,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
 module.exports = {
   sendVerificationEmail,
+  sendStudentVerificationEmail,
 };

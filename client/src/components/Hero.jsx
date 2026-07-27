@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import "../styles/App.css";
 
 function Hero() {
   const navigate = useNavigate();
@@ -14,7 +15,20 @@ function Hero() {
 
   return (
     <section className="hero" id="home">
-      <div className="hero-overlay" />
+      <img
+        src="/hero.webp"
+        className="hero-background-image"
+        alt=""
+        width="1800"
+        height="1013"
+        fetchPriority="high"
+        decoding="async"
+      />
+
+      <div
+        className="hero-overlay"
+        aria-hidden="true"
+      />
 
       <div className="hero-content">
         <p className="hero-label">
@@ -28,9 +42,8 @@ function Hero() {
         </h1>
 
         <p className="hero-description">
-          Buy, sell, and connect with fellow UCF
-          students safely, easily, and all in one
-          place.
+          Buy, sell, and connect with fellow UCF students
+          safely, easily, and all in one place.
         </p>
 
         <div className="hero-buttons">
@@ -52,7 +65,7 @@ function Hero() {
         </div>
 
         <div className="hero-security">
-          <span>🛡️</span>
+          <span aria-hidden="true">🛡️</span>
           Students only. Safer campus connections.
         </div>
       </div>

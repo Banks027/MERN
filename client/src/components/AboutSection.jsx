@@ -3,12 +3,6 @@ import React from "react";
 function AboutSection() {
   return (
     <section className="about-section" id="about">
-      <div className="about-image">
-        <div className="about-image-overlay">
-          <span>Built by Knights</span>
-        </div>
-      </div>
-
       <div className="about-content">
         <p className="section-label">ABOUT US</p>
 

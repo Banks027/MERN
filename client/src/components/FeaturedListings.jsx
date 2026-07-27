@@ -29,7 +29,7 @@ function FeaturedListings({
         <div className="listing-grid">
           {filteredListings.map((listing) => (
             <ListingCard
-              key={listing.id}
+              key={listing._id}
               listing={listing}
               openListing={openListing}
             />
