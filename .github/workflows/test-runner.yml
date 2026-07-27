@@ -1,6 +1,10 @@
 name: Test Runner Availability
 
 on:
+  push:
+    branches:
+      - main-server-sync
+
   workflow_dispatch:
 
 permissions:
@@ -22,7 +26,7 @@ jobs:
           echo "Repository: $GITHUB_REPOSITORY"
           echo "Branch: $GITHUB_REF_NAME"
 
-      - name: Verify Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
