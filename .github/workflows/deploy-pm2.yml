@@ -1,6 +1,10 @@
 name: Deploy KnightMarketplace with PM2
 
 on:
+  push:
+    branches:
+      - main-server-sync
+
   workflow_dispatch:
 
 permissions:
