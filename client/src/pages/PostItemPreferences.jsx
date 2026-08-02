@@ -15,6 +15,9 @@ function PostItemPreferences() {
   const listingDetails =
     location.state?.listingDetails;
 
+  const selectedImages =
+    location.state?.selectedImages || [];
+
   const paymentOptions = [
     "Cash",
     "Zelle",
@@ -42,6 +45,12 @@ function PostItemPreferences() {
     useState([]);
 
   const [buyerInformation, setBuyerInformation] =
+    useState("");
+    
+  const [isPublishing, setIsPublishing] =
+    useState(false);
+
+  const [publishError, setPublishError] =
     useState("");
 
   const [formError, setFormError] = useState("");
@@ -94,8 +103,11 @@ function PostItemPreferences() {
     navigate("/post-item");
   };
 
-  const handlePublish = (event) => {
+  const handlePublish = async (event) => {
     event.preventDefault();
+
+    setFormError("");
+    setPublishError("");
 
     if (paymentMethods.length === 0) {
       setFormError(
@@ -115,20 +127,65 @@ function PostItemPreferences() {
       ...listingDetails,
       paymentMethods,
       meetupLocations,
-      buyerInformation:
-        buyerInformation.trim(),
+      buyerInformation: buyerInformation.trim(),
     };
 
-    /*
-      Connect this object to the existing listing API.
+    const submissionData = new FormData();
 
-      The listing information is not changed.
-      Step 2 only adds payment and meetup preferences.
-    */
+    Object.entries(completeListing).forEach(
+      ([key, value]) => {
+        if (Array.isArray(value)) {
+          submissionData.append(
+            key,
+            JSON.stringify(value)
+          );
 
-    console.log(completeListing);
+          return;
+        }
 
-    navigate("/dashboard");
+        submissionData.append(
+          key,
+          String(value)
+        );
+      }
+    );
+
+    if (selectedImages[0]) {
+      submissionData.append(
+        "image",
+        selectedImages[0]
+      );
+    }
+
+    setIsPublishing(true);
+
+    try {
+      const response = await fetch("/api/listings", {
+        method: "POST",
+        credentials: "include",
+        body: submissionData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message || "Unable to publish listing."
+        );
+      }
+
+      navigate("/dashboard", {
+        state: {
+          message: "Listing published successfully.",
+        },
+      });
+    } catch (error) {
+      setPublishError(
+        error.message || "Unable to publish listing."
+      );
+    } finally {
+      setIsPublishing(false);
+    }
   };
 
   return (
@@ -370,6 +427,15 @@ function PostItemPreferences() {
                 {formError}
               </p>
             )}
+
+            {publishError && (
+              <p
+                className="post-item-error-message post-preferences-error"
+                role="alert"
+              >
+                {publishError}
+              </p>
+            )}
           </div>
 
           <div className="post-item-form-actions">
@@ -384,8 +450,11 @@ function PostItemPreferences() {
             <button
               type="submit"
               className="post-item-submit-button"
+              disabled={isPublishing}
             >
-              Publish Listing
+              {isPublishing
+                ? "Publishing..."
+                : "Publish Listing"}
             </button>
           </div>
         </form>

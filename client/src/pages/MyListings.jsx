@@ -1,4 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
@@ -8,8 +12,49 @@ import Footer from "../components/Footer";
 import "../styles/Dashboard.css";
 import "../styles/MyListings.css";
 
+const DEFAULT_LISTING_IMAGE =
+  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80";
+
+function getListingImage(listing) {
+  if (
+    Array.isArray(listing.images) &&
+    listing.images.length > 0
+  ) {
+    return listing.images[0];
+  }
+
+  return DEFAULT_LISTING_IMAGE;
+}
+
+function formatPrice(price) {
+  const numericPrice = Number(price);
+
+  if (!Number.isFinite(numericPrice)) {
+    return "$0.00";
+  }
+
+  return numericPrice.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+}
+
 function MyListings() {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [listingToDelete, setListingToDelete] =
+    useState(null);
+  const [editingListing, setEditingListing] =
+    useState(null);
+  const [listings, setListings] = useState([]);
+  const [isLoadingListings, setIsLoadingListings] =
+    useState(true);
+  const [listingsError, setListingsError] =
+    useState("");
+  const [actionError, setActionError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] =
+    useState(false);
 
   const navigate = useNavigate();
 
@@ -28,11 +73,51 @@ function MyListings() {
   const avatarLetter =
     displayName.charAt(0).toUpperCase();
 
+  useEffect(() => {
+    async function loadMyListings() {
+      setIsLoadingListings(true);
+      setListingsError("");
+
+      try {
+        const response = await fetch(
+          "/api/listings/mine",
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Unable to load your listings."
+          );
+        }
+
+        setListings(
+          Array.isArray(data.listings)
+            ? data.listings
+            : []
+        );
+      } catch (error) {
+        setListingsError(
+          error.message ||
+            "Unable to load your listings."
+        );
+      } finally {
+        setIsLoadingListings(false);
+      }
+    }
+
+    loadMyListings();
+  }, []);
+
   async function handleSignOut() {
     try {
       await logout();
 
-      navigate("/login", {
+      navigate("/", {
         replace: true,
       });
     } catch (error) {
@@ -40,104 +125,134 @@ function MyListings() {
     }
   }
 
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const [listingToDelete, setListingToDelete] = useState(null);
-
-  const [editingListing, setEditingListing] = useState(null);
-
-  const [listings, setListings] = useState([
-    {
-      id: 1,
-      title: "MacBook Air M2",
-      price: 750,
-      category: "Electronics",
-      condition: "Like New",
-      status: "Active",
-      views: 61,
-      image:
-        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80",
-    },
-    {
-      id: 2,
-      title: "Calculus Textbook",
-      price: 45,
-      category: "Books",
-      condition: "Good",
-      status: "Active",
-      views: 34,
-      image:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=700&q=80",
-    },
-    {
-      id: 3,
-      title: "Nike Running Shoes",
-      price: 65,
-      category: "Clothing",
-      condition: "Like New",
-      status: "Sold",
-      views: 19,
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80",
-    },
-    {
-      id: 4,
-      title: "Gaming Monitor",
-      price: 185,
-      category: "Electronics",
-      condition: "Excellent",
-      status: "Active",
-      views: 52,
-      image:
-        "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=700&q=80",
-    },
-  ]);
-
   const filteredListings = useMemo(() => {
+    const normalizedSearch =
+      searchTerm.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return listings;
+    }
+
     return listings.filter((listing) =>
-      listing.title.toLowerCase().includes(searchTerm.toLowerCase())
+      String(listing.title || "")
+        .toLowerCase()
+        .includes(normalizedSearch)
     );
   }, [listings, searchTerm]);
 
-  const activeListings =
-    listings.filter((listing) => listing.status === "Active").length;
+  const activeListings = listings.length;
 
-  const soldListings =
-    listings.filter((listing) => listing.status === "Sold").length;
+  async function deleteListing() {
+    if (!listingToDelete?._id) {
+      return;
+    }
 
-  const totalViews =
-    listings.reduce((total, listing) => total + listing.views, 0);
+    setIsDeleting(true);
+    setActionError("");
 
-  function deleteListing(id) {
-    setListings((current) =>
-      current.filter((listing) => listing.id !== id)
-    );
+    try {
+      const response = await fetch(
+        `/api/listings/${listingToDelete._id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
-    setListingToDelete(null);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Unable to delete the listing."
+        );
+      }
+
+      setListings((current) =>
+        current.filter(
+          (listing) =>
+            listing._id !== listingToDelete._id
+        )
+      );
+
+      setListingToDelete(null);
+    } catch (error) {
+      setActionError(
+        error.message ||
+          "Unable to delete the listing."
+      );
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
-  function saveListing() {
-    setListings((current) =>
-      current.map((listing) =>
-        listing.id === editingListing.id
-          ? editingListing
-          : listing
-      )
-    );
+  async function saveListing() {
+    if (!editingListing?._id) {
+      return;
+    }
 
-    setEditingListing(null);
+    setIsSaving(true);
+    setActionError("");
+
+    try {
+      const response = await fetch(
+        `/api/listings/${editingListing._id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            title: editingListing.title,
+            price: editingListing.price,
+            category: editingListing.category,
+            condition: editingListing.condition,
+            description:
+              editingListing.description || "",
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            "Unable to update the listing."
+        );
+      }
+
+      setListings((current) =>
+        current.map((listing) =>
+          listing._id === data.listing._id
+            ? data.listing
+            : listing
+        )
+      );
+
+      setEditingListing(null);
+    } catch (error) {
+      setActionError(
+        error.message ||
+          "Unable to update the listing."
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
     <>
-      {/* ==============================
-          DASHBOARD NAVBAR
-      ============================== */}
-
       <header className="dashboard-navbar">
         <div className="dashboard-navbar-inner">
-          <Link to="/dashboard" className="dashboard-brand">
-            <span className="dashboard-brand-icon">♞</span>
+          <Link
+            to="/dashboard"
+            className="dashboard-brand"
+          >
+            <span className="dashboard-brand-icon">
+              ♞
+            </span>
 
             <span>
               Knight<span>Marketplace</span>
@@ -148,7 +263,9 @@ function MyListings() {
             <button
               type="button"
               className="dashboard-profile-button"
-              onClick={() => setProfileOpen(!profileOpen)}
+              onClick={() =>
+                setProfileOpen(!profileOpen)
+              }
             >
               <span className="dashboard-profile-avatar">
                 {avatarLetter}
@@ -166,12 +283,10 @@ function MyListings() {
             {profileOpen && (
               <div className="dashboard-profile-menu">
                 <Link to="/dashboard">🏠 Home</Link>
-
                 <Link to="/profile">My Profile</Link>
-
-                <Link to="/my-listings">My Listings</Link>
-
-                <Link to="/settings">Settings</Link>
+                <Link to="/my-listings">
+                  My Listings
+                </Link>
 
                 <button
                   type="button"
@@ -187,24 +302,18 @@ function MyListings() {
       </header>
 
       <main className="my-listings-page">
-
         <section className="my-listings-hero">
-
           <div>
-
             <p className="hero-label">
               Seller Dashboard
             </p>
 
-            <h1>
-              My Listings
-            </h1>
+            <h1>My Listings</h1>
 
             <p>
-              Manage, edit and monitor everything you're selling on
-              KnightMarketplace.
+              Manage and edit everything you're selling
+              on KnightMarketplace.
             </p>
-
           </div>
 
           <Link
@@ -213,246 +322,299 @@ function MyListings() {
           >
             + Post New Item
           </Link>
-
         </section>
 
         <section className="listing-stats">
-
           <div className="listing-stat-card">
             <h2>{activeListings}</h2>
             <p>Active Listings</p>
           </div>
-
-          <div className="listing-stat-card">
-            <h2>{soldListings}</h2>
-            <p>Items Sold</p>
-          </div>
-
-          <div className="listing-stat-card">
-            <h2>{totalViews}</h2>
-            <p>Total Views</p>
-          </div>
-
         </section>
 
         <section className="listing-toolbar">
-
           <input
             type="text"
             placeholder="Search your listings..."
             value={searchTerm}
-            onChange={(e) =>
-              setSearchTerm(e.target.value)
+            onChange={(event) =>
+              setSearchTerm(event.target.value)
             }
           />
-
         </section>
 
-        <section className="my-listings-grid">
-                  {filteredListings.map((listing) => (
-            <article
-              className="my-listing-card"
-              key={listing.id}
-            >
-              <div className="my-listing-image">
-                <img
-                  src={listing.image}
-                  alt={listing.title}
-                />
+        {listingsError && (
+          <div className="my-listings-message">
+            {listingsError}
+          </div>
+        )}
 
-                <span className="listing-price">
-                  ${listing.price}
-                </span>
-              </div>
+        {isLoadingListings ? (
+          <div className="my-listings-message">
+            Loading your listings...
+          </div>
+        ) : filteredListings.length > 0 ? (
+          <section className="my-listings-grid">
+            {filteredListings.map((listing) => (
+              <article
+                className="my-listing-card"
+                key={listing._id}
+              >
+                <div className="my-listing-image">
+                  <img
+                    src={getListingImage(listing)}
+                    alt={listing.title}
+                  />
 
-              <div className="my-listing-content">
-
-                <span className="listing-category">
-                  {listing.category}
-                </span>
-
-                <h3>{listing.title}</h3>
-
-                <div className="listing-details">
-                  <span>{listing.condition}</span>
-
-                  <span>{listing.views} Views</span>
-                </div>
-
-                <div className="listing-status">
-                  <span
-                    className={
-                      listing.status === "Sold"
-                        ? "status sold"
-                        : "status active"
-                    }
-                  >
-                    {listing.status}
+                  <span className="listing-price">
+                    {formatPrice(listing.price)}
                   </span>
                 </div>
 
-                <div className="listing-actions">
+                <div className="my-listing-content">
+                  <span className="listing-category">
+                    {listing.category}
+                  </span>
 
-                  <Link
-                    to={`/listings/${listing.id}`}
-                    className="view-button"
-                  >
-                    👁 View
-                  </Link>
+                  <h3>{listing.title}</h3>
 
-                  <button
-                    className="edit-button"
-                    onClick={() =>
+                  <div className="listing-details">
+                    <span>{listing.condition}</span>
+                    <span>Active</span>
+                  </div>
+
+                  <div className="listing-status">
+                    <span className="status active">
+                      Active
+                    </span>
+                  </div>
+
+                  <div className="listing-actions">
+                    <Link
+                      to="/listings"
+                      className="view-button"
+                    >
+                      👁 View
+                    </Link>
+
+                    <button
+                      type="button"
+                      className="edit-button"
+                      onClick={() => {
+                        setActionError("");
+                        setEditingListing({
+                          ...listing,
+                        });
+                      }}
+                    >
+                      ✏ Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      className="delete-button"
+                      onClick={() => {
+                        setActionError("");
+                        setListingToDelete(listing);
+                      }}
+                    >
+                      🗑 Delete
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </section>
+        ) : (
+          <div className="my-listings-message">
+            You do not have any active listings.
+          </div>
+        )}
+
+        {editingListing && (
+          <div
+            className="modal-overlay"
+            onClick={() => setEditingListing(null)}
+          >
+            <div
+              className="listing-modal"
+              onClick={(event) =>
+                event.stopPropagation()
+              }
+            >
+              <h2>Edit Listing</h2>
+
+              {actionError && (
+                <p className="listing-action-error">
+                  {actionError}
+                </p>
+              )}
+
+              <div className="edit-listing-grid">
+                <label className="edit-field edit-field-full">
+                  Title
+
+                  <input
+                    type="text"
+                    value={editingListing.title}
+                    onChange={(event) =>
                       setEditingListing({
-                        ...listing,
+                        ...editingListing,
+                        title: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <label className="edit-field">
+                  Price
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={editingListing.price}
+                    onChange={(event) =>
+                      setEditingListing({
+                        ...editingListing,
+                        price: event.target.value,
+                      })
+                    }
+                  />
+                </label>
+
+                <label className="edit-field">
+                  Category
+
+                  <select
+                    value={editingListing.category}
+                    onChange={(event) =>
+                      setEditingListing({
+                        ...editingListing,
+                        category: event.target.value,
                       })
                     }
                   >
-                    ✏ Edit
-                  </button>
+                    <option value="Electronics">
+                      Electronics
+                    </option>
 
-                  <button
-                    className="delete-button"
-                    onClick={() =>
-                      setListingToDelete(listing)
+                    <option value="Furniture">
+                      Furniture
+                    </option>
+
+                    <option value="Textbooks">
+                      Textbooks
+                    </option>
+
+                    <option value="Clothing">
+                      Clothing
+                    </option>
+
+                    <option value="Dorm Essentials">
+                      Dorm Essentials
+                    </option>
+                  </select>
+                </label>
+
+                <label className="edit-field">
+                  Condition
+
+                  <select
+                    value={editingListing.condition}
+                    onChange={(event) =>
+                      setEditingListing({
+                        ...editingListing,
+                        condition: event.target.value,
+                      })
                     }
                   >
-                    🗑 Delete
-                  </button>
+                    <option value="New">
+                      New
+                    </option>
 
-                </div>
+                    <option value="Like New">
+                      Like New
+                    </option>
 
+                    <option value="Good">
+                      Good
+                    </option>
+
+                    <option value="Fair">
+                      Fair
+                    </option>
+                  </select>
+                </label>
+
+                <label className="edit-field edit-field-full">
+                  Description
+
+                  <textarea
+                    rows="5"
+                    value={
+                      editingListing.description || ""
+                    }
+                    onChange={(event) =>
+                      setEditingListing({
+                        ...editingListing,
+                        description: event.target.value,
+                      })
+                    }
+                  />
+                </label>
               </div>
-            </article>
-          ))}
-        </section>
-
-        {/* ============================
-            EDIT LISTING MODAL
-        ============================ */}
-
-        {editingListing && (
-          <div className="modal-overlay">
-
-            <div className="listing-modal">
-
-              <h2>Edit Listing</h2>
-
-              <label>
-                Title
-
-                <input
-                  type="text"
-                  value={editingListing.title}
-                  onChange={(e) =>
-                    setEditingListing({
-                      ...editingListing,
-                      title: e.target.value,
-                    })
-                  }
-                />
-              </label>
-
-              <label>
-                Price
-
-                <input
-                  type="number"
-                  value={editingListing.price}
-                  onChange={(e) =>
-                    setEditingListing({
-                      ...editingListing,
-                      price: Number(e.target.value)
-                    })
-                  }
-                />
-              </label>
-
-              <label>
-                Category
-
-                <input
-                  type="text"
-                  value={editingListing.category}
-                  onChange={(e) =>
-                    setEditingListing({
-                      ...editingListing,
-                      category: e.target.value,
-                    })
-                  }
-                />
-              </label>
-
-              <label>
-                Condition
-
-                <input
-                  type="text"
-                  value={editingListing.condition}
-                  onChange={(e) =>
-                    setEditingListing({
-                      ...editingListing,
-                      condition: e.target.value,
-                    })
-                  }
-                />
-              </label>
-
-              <label>
-                Status
-
-                <select
-                  value={editingListing.status}
-                  onChange={(e) =>
-                    setEditingListing({
-                      ...editingListing,
-                      status: e.target.value,
-                    })
-                  }
-                >
-                  <option>Active</option>
-                  <option>Sold</option>
-                </select>
-              </label>
 
               <div className="modal-buttons">
-
                 <button
+                  type="button"
                   className="cancel-button"
                   onClick={() =>
                     setEditingListing(null)
                   }
+                  disabled={isSaving}
                 >
                   Cancel
                 </button>
 
                 <button
+                  type="button"
                   className="save-button"
                   onClick={saveListing}
+                  disabled={isSaving}
                 >
-                  Save Changes
+                  {isSaving
+                    ? "Saving..."
+                    : "Save Changes"}
                 </button>
-
               </div>
-
             </div>
-
           </div>
         )}
 
-        {/* ============================
-            DELETE MODAL
-        ============================ */}
-
         {listingToDelete && (
-          <div className="modal-overlay">
-
-            <div className="listing-modal delete-modal">
-
+          <div
+            className="modal-overlay"
+            onClick={() =>
+              setListingToDelete(null)
+            }
+          >
+            <div
+              className="listing-modal delete-modal"
+              onClick={(event) =>
+                event.stopPropagation()
+              }
+            >
               <h2>Delete Listing?</h2>
 
+              {actionError && (
+                <p className="listing-action-error">
+                  {actionError}
+                </p>
+              )}
+
               <p>
-                Are you sure you want to delete
+                Are you sure you want to permanently
+                delete
               </p>
 
               <strong>
@@ -460,36 +622,34 @@ function MyListings() {
               </strong>
 
               <div className="modal-buttons">
-
                 <button
+                  type="button"
                   className="cancel-button"
                   onClick={() =>
                     setListingToDelete(null)
                   }
+                  disabled={isDeleting}
                 >
                   Cancel
                 </button>
 
                 <button
+                  type="button"
                   className="delete-confirm-button"
-                  onClick={() =>
-                    deleteListing(listingToDelete.id)
-                  }
+                  onClick={deleteListing}
+                  disabled={isDeleting}
                 >
-                  Delete
+                  {isDeleting
+                    ? "Deleting..."
+                    : "Delete"}
                 </button>
-
               </div>
-
             </div>
-
           </div>
         )}
-
       </main>
 
       <Footer />
-
     </>
   );
 }

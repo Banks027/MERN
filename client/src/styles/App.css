@@ -151,28 +151,49 @@ button {
 /* HERO */
 
 .hero {
-  min-height: 620px;
-  background-image:
-    linear-gradient(
-      90deg,
-      rgba(0, 0, 0, 0.92) 0%,
-      rgba(0, 0, 0, 0.66) 47%,
-      rgba(0, 0, 0, 0.18) 100%
-    ),
-    url("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1800&q=90");
-  background-size: cover;
-  background-position: center;
   position: relative;
+  min-height: 620px;
   display: flex;
   align-items: center;
+  overflow: hidden;
   padding: 70px 8%;
+  background: #111111;
+}
+
+.hero-background-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  width: 100%;
+  max-width: none;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.92) 0%,
+    rgba(0, 0, 0, 0.66) 47%,
+    rgba(0, 0, 0, 0.18) 100%
+  );
+
+  pointer-events: none;
 }
 
 .hero-content {
-  width: min(680px, 100%);
-  color: var(--white);
   position: relative;
   z-index: 2;
+  width: min(680px, 100%);
+  color: var(--white);
 }
 
 .hero-label,
@@ -1130,7 +1151,6 @@ body {
   .hero {
     min-height: auto;
     padding: 65px 5%;
-    background-position: center;
   }
 
   .hero-content {

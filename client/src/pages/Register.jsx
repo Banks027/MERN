@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import "../styles/Register.css";
+import GoogleAuthProvider from "../components/GoogleAuthProvider";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { registerUser } from "../api/authApi";
 
@@ -261,15 +262,17 @@ function Register() {
         </div>
 
         <div className="register-google-button-wrapper">
-          <GoogleAuthButton
-            width="400"
-            destination={
-              location.state?.from || "/dashboard"
-            }
-            navigate={navigate}
-            location={location}
-            onErrorMessage={setErrorMessage}
-          />
+          <GoogleAuthProvider>
+            <GoogleAuthButton
+              width="400"
+              destination={
+                location.state?.from || "/dashboard"
+              }
+              navigate={navigate}
+              location={location}
+              onErrorMessage={setErrorMessage}
+            />
+          </GoogleAuthProvider>
         </div>
 
         <p className="register-switch">

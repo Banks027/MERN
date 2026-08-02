@@ -1,0 +1,474 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+
+const categories = [
+  {
+    id: 1,
+    icon: "📚",
+    title: "Textbooks",
+    count: "540+ listings",
+  },
+  {
+    id: 2,
+    icon: "💻",
+    title: "Electronics",
+    count: "320+ listings",
+  },
+  {
+    id: 3,
+    icon: "🛋️",
+    title: "Furniture",
+    count: "190+ listings",
+  },
+  {
+    id: 4,
+    icon: "🛴",
+    title: "Transportation",
+    count: "110+ listings",
+  },
+  {
+    id: 5,
+    icon: "👕",
+    title: "Clothing",
+    count: "275+ listings",
+  },
+  {
+    id: 6,
+    icon: "🎮",
+    title: "Gaming",
+    count: "145+ listings",
+  },
+  {
+    id: 7,
+    icon: "📱",
+    title: "Phones & Tech",
+    count: "260+ listings",
+  },
+  {
+    id: 8,
+    icon: "🏡",
+    title: "Dorm Essentials",
+    count: "180+ listings",
+  },
+];
+
+const featuredListings = [
+  {
+    id: 1,
+    title: "MacBook Air M2",
+    price: "$650",
+    location: "UCF Main Campus",
+    time: "2h ago",
+    image:
+      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80",
+  },
+  {
+    id: 2,
+    title: "Trek FX 3 Bike",
+    price: "$180",
+    location: "Near UCF",
+    time: "3h ago",
+    image:
+      "https://images.unsplash.com/photo-1571068316344-75bc76f77890?auto=format&fit=crop&w=700&q=80",
+  },
+  {
+    id: 3,
+    title: "Two-Seater Sofa",
+    price: "$150",
+    location: "Near UCF",
+    time: "5h ago",
+    image:
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=700&q=80",
+  },
+  {
+    id: 4,
+    title: "Calculus Textbook",
+    price: "$45",
+    location: "UCF Main Campus",
+    time: "6h ago",
+    image:
+      "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=700&q=80",
+  },
+];
+
+const recentListings = [
+  {
+    id: 1,
+    title: "AirPods Pro",
+    price: "$100",
+    time: "10m ago",
+    image:
+      "https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?auto=format&fit=crop&w=250&q=80",
+  },
+  {
+    id: 2,
+    title: "UCF Hoodie",
+    price: "$25",
+    time: "1h ago",
+    image:
+      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=250&q=80",
+  },
+  {
+    id: 3,
+    title: "Desk Lamp",
+    price: "$20",
+    time: "2h ago",
+    image:
+      "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=250&q=80",
+  },
+  {
+    id: 4,
+    title: "Canon Camera",
+    price: "$300",
+    time: "3h ago",
+    image:
+      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=250&q=80",
+  },
+];
+
+const benefits = [
+  {
+    icon: "✓",
+    title: "Trusted Community",
+    text: "Built specifically for verified UCF students.",
+  },
+  {
+    icon: "◆",
+    title: "Safe & Secure",
+    text: "Message sellers and arrange safe campus meetups.",
+  },
+  {
+    icon: "♞",
+    title: "Student Focused",
+    text: "Find items students actually need for college life.",
+  },
+  {
+    icon: "$",
+    title: "No Hidden Fees",
+    text: "Buy and sell without unnecessary listing fees.",
+  },
+];
+
+function Home() {
+  const navigate = useNavigate();
+  const userName = localStorage.getItem("userName") || "Knight";
+
+  function handleLogout() {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userEmail");
+
+    navigate("/login");
+  }
+
+  function handleSearch(event) {
+    event.preventDefault();
+    navigate("/listings");
+  }
+
+  function handleCategoryClick(categoryName) {
+    navigate(`/listings?category=${encodeURIComponent(categoryName)}`);
+  }
+
+  return (
+    <div className="home-page">
+      <header className="main-header">
+        <div className="brand-area">
+          <div className="brand-shield">♞</div>
+
+          <div>
+            <h1 className="brand-name">
+              Knight<span>Market</span>
+            </h1>
+
+            <p className="brand-tagline">BUY. SELL. CONNECT.</p>
+          </div>
+        </div>
+
+        <nav className="main-nav" aria-label="Main navigation">
+          <a href="#home" className="active">
+            Home
+          </a>
+
+          <button type="button" onClick={() => navigate("/listings")}>
+            Listings
+          </button>
+
+          <button type="button" onClick={() => navigate("/messages")}>
+            Messages
+          </button>
+
+          <button type="button" onClick={() => navigate("/my-listings")}>
+            My Listings
+          </button>
+
+          <a href="#how-it-works">How It Works</a>
+          <a href="#about">About Us</a>
+        </nav>
+
+        <div className="header-actions">
+          <button
+            type="button"
+            className="notification-button"
+            onClick={() => navigate("/notifications")}
+            aria-label="Notifications"
+          >
+            ♧
+            <span className="notification-count">2</span>
+          </button>
+
+          <div className="profile-menu">
+            <button type="button" className="profile-button">
+              <span className="profile-avatar">
+                {userName.charAt(0).toUpperCase()}
+              </span>
+
+              <span>{userName}</span>
+              <span className="profile-arrow">⌄</span>
+            </button>
+
+            <div className="profile-dropdown">
+              <button type="button" onClick={() => navigate("/profile")}>
+                My Profile
+              </button>
+
+              <button type="button" onClick={() => navigate("/my-listings")}>
+                My Listings
+              </button>
+
+              <button type="button" onClick={() => navigate("/saved")}>
+                Saved Items
+              </button>
+
+              <button type="button" onClick={() => navigate("/messages")}>
+                Messages
+              </button>
+
+              <button
+                type="button"
+                className="logout-button"
+                onClick={handleLogout}
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section className="hero-section" id="home">
+          <div className="hero-content">
+            <p className="hero-kicker">UCF STUDENT MARKETPLACE</p>
+
+            <h2>
+              The UCF Marketplace
+              <span>Built by Knights, for Knights.</span>
+            </h2>
+
+            <p className="hero-description">
+              Buy, sell, and connect with fellow UCF students.
+              Trusted, secure, and student-powered.
+            </p>
+
+            <form className="hero-search" onSubmit={handleSearch}>
+              <span className="search-icon">⌕</span>
+
+              <input
+                type="search"
+                placeholder="Search textbooks, electronics, furniture, and more..."
+                aria-label="Search marketplace listings"
+              />
+
+              <button type="submit">Search</button>
+            </form>
+
+            <div className="trending-searches">
+              <strong>Trending:</strong>
+              <button type="button">MacBook</button>
+              <button type="button">Mini Fridge</button>
+              <button type="button">Desk</button>
+              <button type="button">Textbooks</button>
+            </div>
+
+            <div className="hero-buttons">
+              <button
+                type="button"
+                className="primary-action"
+                onClick={() => navigate("/listings")}
+              >
+                Browse All Items
+              </button>
+
+              <button
+                type="button"
+                className="secondary-action"
+                onClick={() => navigate("/post-item")}
+              >
+                Post an Item
+              </button>
+            </div>
+          </div>
+
+          <div className="hero-image-placeholder">
+            <div className="image-placeholder-content">
+              <span>Campus image coming soon</span>
+              <small>A student can add the final UCF image later</small>
+            </div>
+          </div>
+        </section>
+
+        {/* ===============================
+            EXPLORE CATEGORIES
+        =============================== */}
+
+        <section className="categories-section">
+
+          <div className="section-title">
+
+            <h2>Explore Categories</h2>
+
+            <p>
+              Find exactly what you're looking for across KnightMarket.
+            </p>
+
+          </div>
+
+          <div className="categories-grid">
+
+            {categories.map((category) => (
+
+              <button
+                key={category.id}
+                className="category-card"
+                onClick={() => handleCategoryClick(category.title)}
+              >
+
+                <div className="category-icon">
+                  {category.icon}
+                </div>
+
+                <h3>{category.title}</h3>
+
+                <span>{category.count}</span>
+
+              </button>
+
+            ))}
+
+          </div>
+
+        </section>
+
+        {/* ===============================
+            FEATURED LISTINGS
+        =============================== */}
+
+        <section className="marketplace-content">
+
+          <div className="featured-section">
+
+            <div className="section-heading">
+
+              <h2>Featured Listings</h2>
+
+              <button
+                className="view-all-button"
+                onClick={() => navigate("/listings")}
+              >
+                View All →
+              </button>
+
+            </div>
+
+            <div className="featured-grid">
+
+              {featuredListings.map((listing) => (
+
+                <article
+                  className="listing-card"
+                  key={listing.id}
+                >
+
+                  <div className="listing-image-wrapper">
+
+                    <img
+                      src={listing.image}
+                      alt={listing.title}
+                    />
+
+                    <button className="favorite-button">
+                      ♡
+                    </button>
+
+                  </div>
+
+                  <div className="listing-card-content">
+
+                    <h3>{listing.title}</h3>
+
+                    <p className="listing-price">
+                      {listing.price}
+                    </p>
+
+                    <div className="listing-meta">
+
+                      <span>{listing.location}</span>
+
+                      <span>{listing.time}</span>
+
+                    </div>
+
+                  </div>
+
+                </article>
+
+              ))}
+
+            </div>
+
+          </div>
+
+          <aside className="recent-section">
+
+            <div className="section-heading">
+
+              <h2>Recently Posted</h2>
+
+            </div>
+
+            <div className="recent-list">
+
+              {recentListings.map((listing) => (
+
+                <article
+                  key={listing.id}
+                  className="recent-item"
+                >
+
+                  <img
+                    src={listing.image}
+                    alt={listing.title}
+                  />
+
+                  <div className="recent-item-info">
+
+                    <h3>{listing.title}</h3>
+
+                    <p>{listing.price}</p>
+
+                  </div>
+
+                  <span className="recent-time">
+                    {listing.time}
+                  </span>
+
+                </article>
+
+              ))}
+
+            </div>
+
+          </aside>
+
+        </section>

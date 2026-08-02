@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import "../styles/PostItem.css";
@@ -10,17 +10,47 @@ function PostItem() {
     title: "",
     price: "",
     category: "",
+    condition: "",
     description: "",
-    zipcode: "",
-    sellerName: "",
-    sellerEmail: "",
-    sellerPhone: "",
+    zipCode: "",
+    contactPhone: "",
   });
+
+  const maximumImageSize = 5 * 1024 * 1024;
+
+  const allowedImageTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+  ];
+
+  const [selectedImages, setSelectedImages] =
+    useState([]);
+
+  const [imageError, setImageError] =
+    useState("");
 
   const [location, setLocation] = useState(null);
   const [zipError, setZipError] = useState("");
   const [isLookingUpZip, setIsLookingUpZip] =
     useState(false);
+
+  const imagePreviews = useMemo(
+    () =>
+      selectedImages.map((image) => ({
+        file: image,
+        previewUrl: URL.createObjectURL(image),
+      })),
+    [selectedImages]
+  );
+
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach((image) => {
+        URL.revokeObjectURL(image.previewUrl);
+      });
+    };
+  }, [imagePreviews]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -30,41 +60,95 @@ function PostItem() {
       [name]: value,
     }));
 
-    if (name === "zipcode") {
+    if (name === "zipCode") {
       setLocation(null);
       setZipError("");
     }
   };
 
-  const handleZipLookup = async () => {
-    setZipError("");
-    setLocation(null);
+  const handleImageSelection = (event) => {
+    const selectedFile = event.target.files?.[0];
 
-    const cleanedZipcode = formData.zipcode.trim();
+    setImageError("");
 
-    if (!/^\d{5}$/.test(cleanedZipcode)) {
-      setZipError(
-        "ZIP code must contain exactly five digits."
-      );
+    if (!selectedFile) {
       return;
     }
 
+    if (!allowedImageTypes.includes(selectedFile.type)) {
+      setImageError(
+        "Only JPEG, PNG, and WebP images are allowed."
+      );
+
+      event.target.value = "";
+      return;
+    }
+
+    if (selectedFile.size > maximumImageSize) {
+      setImageError(
+        "The image must be 5 MB or smaller."
+      );
+
+      event.target.value = "";
+      return;
+    }
+
+    setSelectedImages([selectedFile]);
+
+    event.target.value = "";
+  };
+
+  const removeSelectedImage = (imageIndex) => {
+    setSelectedImages((currentImages) =>
+      currentImages.filter(
+        (_, currentIndex) =>
+          currentIndex !== imageIndex
+      )
+    );
+
+    setImageError("");
+  };
+
+  const lookupZipCode = async () => {
+    const cleanedZipCode = formData.zipCode.trim();
+
+    if (!/^\d{5}$/.test(cleanedZipCode)) {
+      throw new Error(
+        "ZIP code must contain exactly five digits."
+      );
+    }
+
+    const response = await fetch(
+      `/api/zipcode/${cleanedZipCode}`
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.error ||
+          data.message ||
+          "Unable to find ZIP code."
+      );
+    }
+
+    return {
+      city: data.city,
+      state: data.state,
+      abbreviation: data.abbreviation,
+      latitude: Number(data.latitude),
+      longitude: Number(data.longitude),
+    };
+  };
+
+  const handleZipLookup = async () => {
+    setZipError("");
+    setLocation(null);
     setIsLookingUpZip(true);
 
     try {
-      const response = await fetch(
-        `/api/zipcode/${cleanedZipcode}`
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          data.error || "Unable to find ZIP code."
-        );
-      }
-
-      setLocation(data);
+      const verifiedLocation = await lookupZipCode();
+      setLocation(verifiedLocation);
     } catch (error) {
       setZipError(
         error.message || "Unable to verify ZIP code."
@@ -74,10 +158,12 @@ function PostItem() {
     }
   };
 
-  const handleContinue = (event) => {
+  const handleContinue = async (event) => {
     event.preventDefault();
 
-    const cleanedPhone = formData.sellerPhone.replace(
+    setZipError("");
+
+    const cleanedPhone = formData.contactPhone.replace(
       /\D/g,
       ""
     );
@@ -89,29 +175,44 @@ function PostItem() {
       return;
     }
 
-    if (!location) {
-      setZipError(
-        "Please verify the ZIP code before continuing."
-      );
-      return;
+    let verifiedLocation = location;
+
+    if (!verifiedLocation) {
+      setIsLookingUpZip(true);
+
+      try {
+        verifiedLocation = await lookupZipCode();
+        setLocation(verifiedLocation);
+      } catch (error) {
+        setZipError(
+          error.message || "Unable to verify ZIP code."
+        );
+        return;
+      } finally {
+        setIsLookingUpZip(false);
+      }
     }
 
     const listingDetails = {
-      ...formData,
-      zipcode: formData.zipcode.trim(),
-      sellerName: formData.sellerName.trim(),
-      sellerEmail: formData.sellerEmail.trim(),
-      sellerPhone: cleanedPhone,
-      city: location.city,
-      state: location.state,
-      stateAbbreviation: location.abbreviation,
-      latitude: location.latitude,
-      longitude: location.longitude,
+      title: formData.title.trim(),
+      price: Number(formData.price),
+      category: formData.category,
+      condition: formData.condition,
+      description: formData.description.trim(),
+      contactPhone: cleanedPhone,
+      zipCode: formData.zipCode.trim(),
+      city: verifiedLocation.city,
+      state: verifiedLocation.state,
+      stateAbbreviation:
+        verifiedLocation.abbreviation,
+      latitude: verifiedLocation.latitude,
+      longitude: verifiedLocation.longitude,
     };
 
     navigate("/post-item/preferences", {
       state: {
         listingDetails,
+        selectedImages,
       },
     });
   };
@@ -244,26 +345,96 @@ function PostItem() {
                   Select a category
                 </option>
 
-                <option value="textbooks">
+                <option value="Textbooks">
                   Textbooks
                 </option>
 
-                <option value="electronics">
+                <option value="Electronics">
                   Electronics
                 </option>
 
-                <option value="furniture">
+                <option value="Furniture">
                   Furniture
                 </option>
 
-                <option value="clothing">
+                <option value="Clothing">
                   Clothing
                 </option>
 
-                <option value="other">
+                <option value="Dorm Essentials">
+                  Dorm Essentials
+                </option>
+
+                <option value="School Supplies">
+                  School Supplies
+                </option>
+
+                <option value="Sports & Recreation">
+                  Sports & Recreation
+                </option>
+
+                <option value="Tickets">
+                  Tickets
+                </option>
+
+                <option value="Free Items">
+                  Free Items
+                </option>
+
+                <option value="Other">
                   Other
                 </option>
               </select>
+            </div>
+
+            <div className="post-item-field">
+              <label htmlFor="condition">
+                Condition
+              </label>
+
+              <select
+                id="condition"
+                name="condition"
+                value={formData.condition}
+                onChange={handleChange}
+                required
+              >
+                <option value="">
+                  Select a condition
+                </option>
+
+                <option value="New">New</option>
+
+                <option value="Like New">
+                  Like New
+                </option>
+
+                <option value="Good">Good</option>
+
+                <option value="Fair">Fair</option>
+
+                <option value="Poor">Poor</option>
+              </select>
+            </div>
+
+            <div className="post-item-field">
+              <label htmlFor="contactPhone">
+                Contact Phone
+              </label>
+
+              <input
+                id="contactPhone"
+                name="contactPhone"
+                type="tel"
+                value={formData.contactPhone}
+                onChange={handleChange}
+                placeholder="Example: 407-555-1234"
+                required
+              />
+
+              <small>
+                Enter a valid 10-digit phone number.
+              </small>
             </div>
 
             <div className="post-item-field post-item-full-width">
@@ -276,83 +447,110 @@ function PostItem() {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe the item and its condition."
+                placeholder="Describe the item, age, and any important details."
                 rows="6"
                 required
               />
 
               <small>
-                Include the condition, age, and any important
-                details about the item.
+                Include the age and any important details
+                about the item.
               </small>
             </div>
 
-            <div className="post-item-field">
-              <label htmlFor="sellerName">
-                Seller Name
-              </label>
-
-              <input
-                id="sellerName"
-                name="sellerName"
-                type="text"
-                value={formData.sellerName}
-                onChange={handleChange}
-                placeholder="Enter your name"
-                required
-              />
-            </div>
-
-            <div className="post-item-field">
-              <label htmlFor="sellerEmail">
-                Seller Email
-              </label>
-
-              <input
-                id="sellerEmail"
-                name="sellerEmail"
-                type="email"
-                value={formData.sellerEmail}
-                onChange={handleChange}
-                placeholder="example@ucf.edu"
-                required
-              />
-            </div>
-
             <div className="post-item-field post-item-full-width">
-              <label htmlFor="sellerPhone">
-                Seller Phone
+              <label htmlFor="listingImages">
+                Item Image
               </label>
 
-              <input
-                id="sellerPhone"
-                name="sellerPhone"
-                type="tel"
-                value={formData.sellerPhone}
-                onChange={handleChange}
-                placeholder="Example: 407-555-1234"
-                required
-              />
+              <div className="post-item-image-upload">
+                <input
+                  id="listingImages"
+                  name="listingImages"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleImageSelection}
+                />
+
+                <div className="post-item-image-upload-content">
+                  <strong>Choose item image</strong>
+
+                  <span>
+                    JPEG, PNG, or WebP. Maximum 5 MB.
+                  </span>
+
+                  <small>
+                    {selectedImages.length === 1
+                      ? "Image selected"
+                      : "No image selected"}
+                  </small>
+                  
+                </div>
+              </div>
+
+              {imageError && (
+                <p
+                  className="post-item-error-message"
+                  role="alert"
+                >
+                  {imageError}
+                </p>
+              )}
+
+              {imagePreviews.length > 0 && (
+                <div className="post-item-image-preview-grid">
+                  {imagePreviews.map(
+                    (image, imageIndex) => (
+                      <div
+                        className="post-item-image-preview"
+                        key={`${image.file.name}-${image.file.lastModified}-${imageIndex}`}
+                      >
+                        <img
+                          src={image.previewUrl}
+                          alt={`Selected item preview ${
+                            imageIndex + 1
+                          }`}
+                        />
+
+                        <button
+                          type="button"
+                          className="post-item-remove-image-button"
+                          onClick={() =>
+                            removeSelectedImage(imageIndex)
+                          }
+                          aria-label={`Remove ${image.file.name}`}
+                        >
+                          ×
+                        </button>
+
+                        <span className="post-item-image-name">
+                          {image.file.name}
+                        </span>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
 
               <small>
-                Enter a valid 10-digit phone number.
+                This image will be used as the listing thumbnail.
               </small>
             </div>
 
             <div className="post-item-field post-item-full-width">
-              <label htmlFor="zipcode">
+              <label htmlFor="zipCode">
                 ZIP Code
               </label>
 
               <div className="post-item-zipcode-row">
                 <input
-                  id="zipcode"
-                  name="zipcode"
+                  id="zipCode"
+                  name="zipCode"
                   type="text"
                   inputMode="numeric"
                   maxLength="5"
                   pattern="[0-9]{5}"
-                  value={formData.zipcode}
+                  value={formData.zipCode}
                   onChange={handleChange}
                   placeholder="Enter five-digit ZIP code"
                   required

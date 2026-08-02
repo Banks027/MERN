@@ -297,3 +297,40 @@
     letter-spacing: 0.35rem;
   }
 }
+
+.verify-email-resend {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.verify-email-resend-button {
+  display: inline-block;
+  min-width: 190px;
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 10px 18px;
+
+  border: 1px solid #ffc425;
+  border-radius: 8px;
+
+  background: transparent;
+  color: #ffc425;
+
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+
+  cursor: pointer;
+}
+
+.verify-email-resend-button:hover:not(:disabled) {
+  background: rgba(255, 196, 37, 0.12);
+}
+
+.verify-email-resend-button:disabled {
+  border-color: #777777;
+  background: rgba(255, 255, 255, 0.04);
+  color: #aaaaaa;
+  cursor: not-allowed;
+  opacity: 1;
+}

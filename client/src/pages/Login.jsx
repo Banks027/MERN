@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 
 import "../styles/Login.css";
+import GoogleAuthProvider from "../components/GoogleAuthProvider";
 import GoogleAuthButton from "../components/GoogleAuthButton";
 import { loginUser } from "../api/authApi";
 import { useAuth } from "../context/AuthContext";
@@ -22,8 +23,17 @@ function Login() {
     Login from a protected listing action:
     sends the user back to the page they came from.
   */
-  const destination =
+  const requestedDestination =
     location.state?.from || "/dashboard";
+
+  const isAuthPage =
+    requestedDestination.startsWith("/login") ||
+    requestedDestination.startsWith("/register") ||
+    requestedDestination.startsWith("/verify-email");
+
+  const destination = isAuthPage
+    ? "/dashboard"
+    : requestedDestination;
 
   const [formData, setFormData] = useState({
     email: "",
@@ -238,13 +248,15 @@ function Login() {
             </div>
 
             <div className="google-button-wrapper">
-              <GoogleAuthButton
-                width="354"
-                destination={destination}
-                navigate={navigate}
-                location={location}
-                onErrorMessage={setErrorMessage}
-              />
+              <GoogleAuthProvider>    
+                <GoogleAuthButton
+                  width="354"
+                  destination={destination}
+                  navigate={navigate}
+                  location={location}
+                  onErrorMessage={setErrorMessage}
+                />
+              </GoogleAuthProvider> 
             </div>
 
             <p className="auth-switch">

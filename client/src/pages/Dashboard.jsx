@@ -1,15 +1,59 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Link,
   useNavigate,
 } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext";
+import StudentEmailVerification from
+  "../components/StudentEmailVerification";
 
 import "../styles/Dashboard.css";
 
+const DEFAULT_LISTING_IMAGE =
+  "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=900&q=80";
+
+function getListingImage(listing) {
+  if (
+    Array.isArray(listing.images) &&
+    listing.images.length > 0
+  ) {
+    return listing.images[0];
+  }
+
+  return DEFAULT_LISTING_IMAGE;
+}
+
+function formatPrice(price) {
+  const numericPrice = Number(price);
+
+  if (!Number.isFinite(numericPrice)) {
+    return "$0.00";
+  }
+
+  return numericPrice.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+}
+
+function getCampusStatus(listing) {
+  const zipCode = String(
+    listing.zipCode || ""
+  ).trim();
+
+  return zipCode === "32816"
+    ? "On-campus student"
+    : "Off-campus student";
+}
+
 function Dashboard() {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [listings, setListings] = useState([]);
+  const [isLoadingListings, setIsLoadingListings] =
+    useState(true);
+  const [listingsError, setListingsError] =
+    useState("");
 
   const navigate = useNavigate();
 
@@ -17,6 +61,9 @@ function Dashboard() {
     user,
     logout,
   } = useAuth();
+
+  const isStudentVerified =
+    Boolean(user?.verifiedStudent);
 
   const displayName =
     user?.firstName ||
@@ -28,56 +75,57 @@ function Dashboard() {
   const avatarLetter =
     displayName.charAt(0).toUpperCase();
 
+  useEffect(() => {
+    async function loadListings() {
+      setIsLoadingListings(true);
+      setListingsError("");
+
+      try {
+        const response = await fetch(
+          "/api/listings?limit=4",
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+              "Unable to load listings."
+          );
+        }
+
+        setListings(
+          Array.isArray(data.listings)
+            ? data.listings
+            : []
+        );
+      } catch (error) {
+        setListingsError(
+          error.message ||
+            "Unable to load listings."
+        );
+      } finally {
+        setIsLoadingListings(false);
+      }
+    }
+
+    loadListings();
+  }, []);
+
   async function handleSignOut() {
     try {
       await logout();
 
-      navigate("/login", {
+      navigate("/", {
         replace: true,
       });
     } catch (error) {
       console.error("Unable to sign out:", error);
     }
   }
-
-  const listings = [
-    {
-      id: 1,
-      title: "MacBook Air M2",
-      price: "$750",
-      category: "Electronics",
-      condition: "Like New",
-      image:
-        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=700&q=80",
-    },
-    {
-      id: 2,
-      title: "Calculus Textbook",
-      price: "$45",
-      category: "Books",
-      condition: "Good",
-      image:
-        "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=700&q=80",
-    },
-    {
-      id: 3,
-      title: "Modern Study Desk",
-      price: "$90",
-      category: "Furniture",
-      condition: "Good",
-      image:
-        "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=700&q=80",
-    },
-    {
-      id: 4,
-      title: "Nike Running Shoes",
-      price: "$65",
-      category: "Clothing",
-      condition: "Like New",
-      image:
-        "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80",
-    },
-  ];
 
   return (
     <div className="dashboard-page">
@@ -87,8 +135,13 @@ function Dashboard() {
 
       <header className="dashboard-navbar">
         <div className="dashboard-navbar-inner">
-          <Link to="/dashboard" className="dashboard-brand">
-            <span className="dashboard-brand-icon">♞</span>
+          <Link
+            to="/dashboard"
+            className="dashboard-brand"
+          >
+            <span className="dashboard-brand-icon">
+              ♞
+            </span>
 
             <span>
               Knight<span>Marketplace</span>
@@ -99,7 +152,9 @@ function Dashboard() {
             <button
               type="button"
               className="dashboard-profile-button"
-              onClick={() => setProfileOpen(!profileOpen)}
+              onClick={() =>
+                setProfileOpen(!profileOpen)
+              }
               aria-expanded={profileOpen}
               aria-label="Open profile menu"
             >
@@ -118,11 +173,19 @@ function Dashboard() {
 
             {profileOpen && (
               <div className="dashboard-profile-menu">
-                <Link to="/profile">My Profile</Link>
+                <Link to="/profile">
+                  My Profile
+                </Link>
 
-                <Link to="/my-listings">My Listings</Link>
-
-                <Link to="/settings">Settings</Link>
+                {isStudentVerified ? (
+                  <Link to="/my-listings">
+                    My Listings
+                  </Link>
+                ) : (
+                  <span className="dashboard-disabled-menu-item">
+                    🔒 My Listings
+                  </span>
+                )}
 
                 <button
                   type="button"
@@ -138,6 +201,8 @@ function Dashboard() {
       </header>
 
       <main className="dashboard-container">
+        <StudentEmailVerification />
+
         {/* ==============================
             HERO BANNER
         ============================== */}
@@ -156,89 +221,51 @@ function Dashboard() {
             </h1>
 
             <p className="dashboard-hero-description">
-              Manage your listings and discover great deals from fellow
-              Knights.
+              Manage your listings and discover great deals
+              from fellow Knights.
             </p>
 
             <div className="dashboard-hero-actions">
-              <Link
-                to="/post-item"
-                className="dashboard-primary-button"
-              >
-                <span>＋</span>
-                Post an Item
-              </Link>
+              {isStudentVerified ? (
+                <Link
+                  to="/post-item"
+                  className="dashboard-primary-button"
+                >
+                  <span>＋</span>
+                  Post an Item
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="dashboard-primary-button dashboard-disabled-button"
+                  disabled
+                >
+                  🔒 Post an Item
+                </button>
+              )}
 
-              <Link
-                to="/my-listings"
-                className="dashboard-secondary-button"
-              >
-                My Listings
-              </Link>
+              {isStudentVerified ? (
+                <Link
+                  to="/my-listings"
+                  className="dashboard-secondary-button"
+                >
+                  My Listings
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className="dashboard-secondary-button dashboard-disabled-button"
+                  disabled
+                >
+                  🔒 My Listings
+                </button>
+              )}
             </div>
           </div>
         </section>
 
         {/* ==============================
-            DASHBOARD STATISTICS
-        ============================== */}
-
-        <section className="dashboard-overview">
-          <div className="dashboard-section-header">
-            <div>
-              <p className="dashboard-section-label">
-                Your marketplace
-              </p>
-
-              <h2>Marketplace Overview</h2>
-            </div>
-          </div>
-
-          <div className="dashboard-stats-grid">
-            <article className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">📦</div>
-
-              <div>
-                <strong>4</strong>
-                <p>Active Listings</p>
-                <small>Items currently available</small>
-              </div>
-            </article>
-
-            <article className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">👁</div>
-
-              <div>
-                <strong>128</strong>
-                <p>Listing Views</p>
-                <small>Total listing activity</small>
-              </div>
-            </article>
-
-            <article className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">✓</div>
-
-              <div>
-                <strong>7</strong>
-                <p>Items Sold</p>
-                <small>Completed marketplace sales</small>
-              </div>
-            </article>
-
-            <article className="dashboard-stat-card">
-              <div className="dashboard-stat-icon">🏷</div>
-
-              <div>
-                <strong>2</strong>
-                <p>Active Offers</p>
-                <small>Offers awaiting review</small>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        {/* ==============================
-            BROWSE LISTINGS PREVIEW
+            REAL MARKETPLACE LISTINGS
         ============================== */}
 
         <section className="dashboard-listings-section">
@@ -251,59 +278,92 @@ function Dashboard() {
               <h2>Browse Listings</h2>
             </div>
 
-            <Link
-              to="/listings"
-              className="dashboard-view-all-link"
-            >
-              View All Listings →
-            </Link>
+            {isStudentVerified ? (
+              <Link
+                to="/listings"
+                className="dashboard-view-all-link"
+              >
+                View All Listings →
+              </Link>
+            ) : (
+              <span className="dashboard-view-all-link dashboard-disabled-link">
+                🔒 Verification Required
+              </span>
+            )}
           </div>
 
-          <div className="dashboard-listings-grid">
-            {listings.map((listing) => (
-              <article
-                className="dashboard-listing-card"
-                key={listing.id}
-              >
-                <div className="dashboard-listing-image">
-                  <img
-                    src={listing.image}
-                    alt={listing.title}
-                  />
+          {isLoadingListings ? (
+            <div className="dashboard-listings-message">
+              Loading listings...
+            </div>
+          ) : listingsError ? (
+            <div className="dashboard-listings-message">
+              {listingsError}
+            </div>
+          ) : listings.length > 0 ? (
+            <div className="dashboard-listings-grid">
+              {listings.map((listing) => (
+                <article
+                  className="dashboard-listing-card"
+                  key={listing._id}
+                >
+                  <div className="dashboard-listing-image">
+                    <img
+                      src={getListingImage(listing)}
+                      alt={listing.title}
+                    />
 
-                  <span className="dashboard-listing-price">
-                    {listing.price}
-                  </span>
-                </div>
-
-                <div className="dashboard-listing-content">
-                  <span className="dashboard-listing-category">
-                    {listing.category}
-                  </span>
-
-                  <h3>{listing.title}</h3>
-
-                  <div className="dashboard-listing-details">
-                    <span>{listing.condition}</span>
-                    <span>UCF Campus</span>
+                    <span className="dashboard-listing-price">
+                      {formatPrice(listing.price)}
+                    </span>
                   </div>
 
-                  <Link
-                    to={`/listings/${listing.id}`}
-                    className="dashboard-listing-button"
-                  >
-                    View Listing
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                  <div className="dashboard-listing-content">
+                    <span className="dashboard-listing-category">
+                      {listing.category}
+                    </span>
+
+                    <h3>{listing.title}</h3>
+
+                    <div className="dashboard-listing-details">
+                      <span>{listing.condition}</span>
+                      <span>
+                        {getCampusStatus(listing)}
+                      </span>
+                    </div>
+
+                    {isStudentVerified ? (
+                      <Link
+                        to="/listings"
+                        className="dashboard-listing-button"
+                      >
+                        View Listing
+                      </Link>
+                    ) : (
+                      <button
+                        type="button"
+                        className="dashboard-listing-button dashboard-disabled-button"
+                        disabled
+                      >
+                        🔒 Verify Student Status
+                      </button>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="dashboard-listings-message">
+              No active listings are available yet.
+            </div>
+          )}
         </section>
       </main>
 
       <footer className="dashboard-footer">
         <p>
-          © 2026 KnightMarketplace. Built for the UCF community.
+          © 2026 KnightMarketplace. Built for the UCF
+          community.
         </p>
       </footer>
     </div>
