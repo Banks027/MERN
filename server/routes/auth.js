@@ -9,6 +9,11 @@ const AuthSession = require("../models/AuthSession");
 const requireAuth = require("../middleware/requireAuth");
 
 const {
+  isUcfEmail,
+  markStudentVerified,
+} = require("../utils/studentVerification");
+
+const {
   verifyRefreshToken,
   hashToken,
 } = require("../utils/tokens");
@@ -161,6 +166,8 @@ router.post("/register", async (req, res) => {
 
       emailVerificationExpiresAt:
         verificationExpiresAt,
+        
+      emailVerificationLastSentAt: new Date(),
 
       passwordSetAt: new Date(),
       verifiedStudent: false,
@@ -309,6 +316,10 @@ router.post("/verify-email", async (req, res) => {
 
     user.emailVerified = true;
     user.emailVerifiedAt = new Date();
+    
+    if (isUcfEmail(user.email)) {
+      markStudentVerified(user, user.email);
+    }
 
     /*
      * The code cannot be reused after successful verification.
@@ -329,6 +340,120 @@ router.post("/verify-email", async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Unable to verify the email address.",
+    });
+  }
+});
+
+ /* POST /auth/resend-verification
+ *
+ * Generates and sends a new account email-verification code.
+ */
+router.post("/resend-verification", async (req, res) => {
+  try {
+    const normalizedEmail =
+      typeof req.body.email === "string"
+        ? req.body.email.toLowerCase().trim()
+        : "";
+
+    if (!normalizedEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Email address is required.",
+      });
+    }
+
+    /*
+     * Explicitly select the last-sent field if it is hidden
+     * in the model. If it is not select:false, this still works.
+     */
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        code: "USER_NOT_FOUND",
+        message:
+          "We could not find an account for this email address.",
+      });
+    }
+
+    if (user.emailVerified) {
+      return res.status(409).json({
+        success: false,
+        code: "EMAIL_ALREADY_VERIFIED",
+        message: "This email address is already verified.",
+      });
+    }
+
+    const now = new Date();
+
+    /*
+     * Backend cooldown prevents repeated requests even if someone
+     * bypasses the frontend button.
+     */
+    if (
+      user.emailVerificationLastSentAt &&
+      now - user.emailVerificationLastSentAt < 60 * 1000
+    ) {
+      const retryAfterSeconds = Math.ceil(
+        (60 * 1000 -
+          (now - user.emailVerificationLastSentAt)) /
+          1000
+      );
+
+      return res.status(429).json({
+        success: false,
+        code: "RESEND_COOLDOWN",
+        message: `Please wait ${retryAfterSeconds} seconds before requesting another code.`,
+        retryAfterSeconds,
+      });
+    }
+
+    const verificationCode = crypto
+      .randomInt(100000, 1000000)
+      .toString();
+
+    const verificationCodeHash =
+      hashToken(verificationCode);
+
+    const verificationExpiresAt =
+      new Date(Date.now() + 10 * 60 * 1000);
+
+    user.emailVerificationTokenHash =
+      verificationCodeHash;
+
+    user.emailVerificationExpiresAt =
+      verificationExpiresAt;
+
+    user.emailVerificationLastSentAt = now;
+
+    await user.save();
+
+    await sendVerificationEmail({
+      to: user.email,
+      displayName: user.displayName,
+      verificationCode,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message:
+        "A new verification code has been sent.",
+      verificationExpiresAt,
+      retryAfterSeconds: 60,
+    });
+  } catch (error) {
+    console.error(
+      "Resend verification email error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to resend the verification code.",
     });
   }
 });
@@ -523,12 +648,19 @@ router.post("/google", async (req, res) => {
         user.emailVerified = true;
         user.emailVerifiedAt = new Date();
       }
+      
+      if (
+        isUcfEmail(normalizedEmail) &&
+        !user.verifiedStudent
+      ) {
+        markStudentVerified(user, normalizedEmail);
+      }
 
       await user.save();
     } else {
       isNewUser = true;
 
-      user = await User.create({
+      user = new User({
         googleId,
         email: normalizedEmail,
         displayName: displayName || normalizedEmail,
@@ -538,6 +670,12 @@ router.post("/google", async (req, res) => {
         emailVerifiedAt: new Date(),
         lastLoginAt: new Date(),
       });
+      
+      if (isUcfEmail(normalizedEmail)) {
+        markStudentVerified(user, normalizedEmail);
+      }
+      
+      await user.save();
     }
 
     /*
@@ -736,6 +874,101 @@ router.get("/me", requireAuth, async (req, res) => {
 });
 
 /*
+ * PATCH /auth/profile
+ *
+ * Updates the authenticated user's display name and phone number.
+ */
+router.patch("/profile", requireAuth, async (req, res) => {
+  try {
+    const normalizedDisplayName =
+      typeof req.body.displayName === "string"
+        ? req.body.displayName.trim()
+        : "";
+
+    const normalizedPhone =
+      typeof req.body.phone === "string"
+        ? req.body.phone.replace(/\D/g, "")
+        : "";
+
+    if (!normalizedDisplayName) {
+      return res.status(400).json({
+        success: false,
+        message: "Display name is required.",
+      });
+    }
+
+    if (normalizedDisplayName.length > 100) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Display name cannot exceed 100 characters.",
+      });
+    }
+
+    if (
+      normalizedPhone &&
+      normalizedPhone.length !== 10 &&
+      !(
+        normalizedPhone.length === 11 &&
+        normalizedPhone.startsWith("1")
+      )
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Phone number must contain 10 digits.",
+      });
+    }
+
+    const user = await User.findById(
+      req.auth.userId
+    );
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message:
+          "User account could not be found.",
+      });
+    }
+
+    user.displayName = normalizedDisplayName;
+    user.phone = normalizedPhone;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully.",
+      user: formatUserResponse(user),
+    });
+  } catch (error) {
+    if (error?.name === "ValidationError") {
+      const validationMessage =
+        Object.values(error.errors || {})[0]
+          ?.message ||
+        "The profile information is invalid.";
+
+      return res.status(400).json({
+        success: false,
+        message: validationMessage,
+      });
+    }
+
+    console.error(
+      "Profile update error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Unable to update your profile.",
+    });
+  }
+});
+
+/*
  * Keeps the user JSON consistent between /google and /me.
  * Sensitive values such as passwordHash are never included.
  */
@@ -749,7 +982,9 @@ function formatUserResponse(user) {
     emailVerified: user.emailVerified,
     passwordCreated: Boolean(user.passwordSetAt),
     verifiedStudent: user.verifiedStudent,
-    university: user.university,
+    studentEmail: user.studentEmail,
+    phone: user.phone,
+    createdAt: user.createdAt,
   };
 }
 

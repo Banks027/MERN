@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    
+    phone: {
+      type: String,
+      default: "",
+    },
 
     displayName: {
       type: String,
@@ -60,6 +65,11 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    
+    emailVerificationLastSentAt: {
+      type: Date,
+      default: null,
+    },
 
     passwordSetAt: {
       type: Date,
@@ -71,12 +81,30 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
 
-    university: {
+    studentEmail: {
       type: String,
+      default: null,
+      lowercase: true,
+      trim: true,
+    },
+
+    studentEmailVerifiedAt: {
+      type: Date,
       default: null,
     },
 
-    sheerIdVerifiedAt: {
+    studentEmailVerificationTokenHash: {
+      type: String,
+      default: null,
+      select: false,
+    },
+
+    studentEmailVerificationExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    studentEmailVerificationLastSentAt: {
       type: Date,
       default: null,
     },
